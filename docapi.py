@@ -28,7 +28,7 @@ def get_calc_resolved_calculation(fieldObj, allFieldsObj):
             n = mappedField.find('[Calculation_')
             toMap = mappedField[n:mappedField.find(']', n)+1]
             mappedField = mappedField.replace(toMap, allFieldsObj[toMap].calculation)
-    return mappedField.encode('utf-8').strip()
+    return mappedField.encode('ascii', 'xmlcharrefreplace').strip()
 
 
 def get_name_resolved_calculation(fieldObj, allFieldsObj):
@@ -54,10 +54,10 @@ for fname in os.listdir(os.getcwd()):
         for sourceTDS in sourceWB.datasources:
             for count, field in enumerate(sourceTDS.fields.values()):
 
-                d.append({'Field': field.name.encode('utf-8'),
+                d.append({'Field': field.name.encode('ascii', 'xmlcharrefreplace'),
                         'Type': field.datatype,
                         'Default Aggregation': field.default_aggregation,
-                        'Field Calculation': get_calc_resolved_calculation(field, sourceTDS.fields)
+                        'Field Calculation': 'field'#get_calc_resolved_calculation(field, sourceTDS.fields)
                         })
 
 d = pd.DataFrame(d)
