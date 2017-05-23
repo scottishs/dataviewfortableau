@@ -4,17 +4,12 @@
 import os
 import pandas as pd
 from tableaudocumentapi import Workbook
-<<<<<<< HEAD
-=======
+
 # from tableaudocumentapi import Datasource
 # from tableaudocumentapi import ConnectionParser
 # from tableaudocumentapi import Connection
 # from tableaudocumentapi import dbclass
-import os
-import glob
-import pandas as pd
-import numpy as np
->>>>>>> dbf15bc6be78c7633728783f15a33eb7157321ee
+
 
 # Setup
 sourceWB = Workbook('tableauworkbook.twb')
@@ -23,7 +18,7 @@ printWorksheet = False
 saveExcel = False
 
 
-def get_resolved_calculation(fieldObj, allFieldsObj):
+def get_calc_resolved_calculation(fieldObj, allFieldsObj):
     """ returns calculation value of a field, with resolved nested calculations """
     if fieldObj.calculation is None:
         return None
@@ -33,7 +28,8 @@ def get_resolved_calculation(fieldObj, allFieldsObj):
             n = mappedField.find('[Calculation_')
             toMap = mappedField[n:mappedField.find(']', n)+1]
             mappedField = mappedField.replace(toMap, allFieldsObj[toMap].calculation)
-    return mappedField
+    return mappedField.encode('utf-8').strip()
+
 
 def get_name_resolved_calculation(fieldObj, allFieldsObj):
     """ returns calculation value of a field, with resolved nested calculations """
@@ -47,7 +43,7 @@ def get_name_resolved_calculation(fieldObj, allFieldsObj):
             mappedField = mappedField.replace(toMap, allFieldsObj[toMap].caption)
     return mappedField
 
-<<<<<<< HEAD
+
 
 # Loop through all files with the same file extension #
 d = []
@@ -57,29 +53,13 @@ for fname in os.listdir(os.getcwd()):
         sourceWB = Workbook(fname)
         for sourceTDS in sourceWB.datasources:
             for count, field in enumerate(sourceTDS.fields.values()):
-                if field.calculation is not None:
-                    calc = field.calculation.encode('utf-8')
-                else:
-                    calc = field.calculation
 
-                d.append({'Field': field.name
-                        , 'Type': field.datatype
-                        , 'Default Aggregation': field.default_aggregation
-                        , 'Field Calculation': calc
+                d.append({'Field': field.name.encode('utf-8'),
+                        'Type': field.datatype,
+                        'Default Aggregation': field.default_aggregation,
+                        'Field Calculation': get_calc_resolved_calculation(field, sourceTDS.fields)
                         })
-=======
-    
-# Loop through all files with the same file extension #
-d = []
-path = "C:\\Users\\eric.surma\\Documents\\Tools\\Tableau\\Python\\samples/*.twbx"
-for fname in glob.glob(path):
-    sourceWB = Workbook(fname)
-    for sourceTDS in sourceWB.datasources:
-        for count, field in enumerate(sourceTDS.fields.values()):
-            d.append({'Field': field.name, 'Type': field.datatype, 'Default Aggregation': field.default_aggregation,
-                      #'Field Calculation': field.calculation, 
-                      'Field Calculation': get_name_resolved_calculation(field, sourceTDS.fields)})
->>>>>>> dbf15bc6be78c7633728783f15a33eb7157321ee
+
 d = pd.DataFrame(d)
 d.to_csv('Python Output File.csv') # Output File
 
