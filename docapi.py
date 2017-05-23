@@ -1,9 +1,7 @@
-# import codecs
-# import xlsxwriter
-# import re
 import os
 import pandas as pd
 from tableaudocumentapi import Workbook
+import unicodedata
 
 # from tableaudocumentapi import Datasource
 # from tableaudocumentapi import ConnectionParser
@@ -12,7 +10,7 @@ from tableaudocumentapi import Workbook
 
 
 # Setup
-sourceWB = Workbook('tableauworkbook.twb')
+#sourceWB = Workbook('tableauworkbook.twb')
 printDatasource = False
 printWorksheet = False
 saveExcel = False
@@ -28,7 +26,7 @@ def get_calc_resolved_calculation(fieldObj, allFieldsObj):
             n = mappedField.find('[Calculation_')
             toMap = mappedField[n:mappedField.find(']', n)+1]
             mappedField = mappedField.replace(toMap, allFieldsObj[toMap].calculation)
-    return mappedField.encode('ascii', 'xmlcharrefreplace').strip()
+    return unicodedata.normalize('NFKD', mappedField)
 
 
 def get_name_resolved_calculation(fieldObj, allFieldsObj):
@@ -54,13 +52,13 @@ for fname in os.listdir(os.getcwd()):
         for sourceTDS in sourceWB.datasources:
             for count, field in enumerate(sourceTDS.fields.values()):
 
-                d.append({'Field': field.name.encode('ascii', 'xmlcharrefreplace'),
+                d.append({'Field': unicodedata.normalize('NFKD', field.name),
                         'Type': field.datatype,
                         'Default Aggregation': field.default_aggregation,
                         'Field Calculation': get_calc_resolved_calculation(field, sourceTDS.fields)
                         })
-
 d = pd.DataFrame(d)
+
 d.to_csv('Python Output File.csv') # Output File
 
 
