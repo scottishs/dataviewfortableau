@@ -4,6 +4,17 @@
 import os
 import pandas as pd
 from tableaudocumentapi import Workbook
+<<<<<<< HEAD
+=======
+# from tableaudocumentapi import Datasource
+# from tableaudocumentapi import ConnectionParser
+# from tableaudocumentapi import Connection
+# from tableaudocumentapi import dbclass
+import os
+import glob
+import pandas as pd
+import numpy as np
+>>>>>>> dbf15bc6be78c7633728783f15a33eb7157321ee
 
 # Setup
 sourceWB = Workbook('tableauworkbook.twb')
@@ -36,6 +47,7 @@ def get_name_resolved_calculation(fieldObj, allFieldsObj):
             mappedField = mappedField.replace(toMap, allFieldsObj[toMap].caption)
     return mappedField
 
+<<<<<<< HEAD
 
 # Loop through all files with the same file extension #
 d = []
@@ -55,8 +67,21 @@ for fname in os.listdir(os.getcwd()):
                         , 'Default Aggregation': field.default_aggregation
                         , 'Field Calculation': calc
                         })
+=======
+    
+# Loop through all files with the same file extension #
+d = []
+path = "C:\\Users\\eric.surma\\Documents\\Tools\\Tableau\\Python\\samples/*.twbx"
+for fname in glob.glob(path):
+    sourceWB = Workbook(fname)
+    for sourceTDS in sourceWB.datasources:
+        for count, field in enumerate(sourceTDS.fields.values()):
+            d.append({'Field': field.name, 'Type': field.datatype, 'Default Aggregation': field.default_aggregation,
+                      #'Field Calculation': field.calculation, 
+                      'Field Calculation': get_name_resolved_calculation(field, sourceTDS.fields)})
+>>>>>>> dbf15bc6be78c7633728783f15a33eb7157321ee
 d = pd.DataFrame(d)
-d.to_csv('test.csv') # Output File
+d.to_csv('Python Output File.csv') # Output File
 
 
 #==============================================================================
