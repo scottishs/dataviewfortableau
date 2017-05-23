@@ -57,7 +57,7 @@ for fname in os.listdir(os.getcwd()):
                 d.append({'Field': field.name.encode('ascii', 'xmlcharrefreplace'),
                         'Type': field.datatype,
                         'Default Aggregation': field.default_aggregation,
-                        'Field Calculation': 'field'#get_calc_resolved_calculation(field, sourceTDS.fields)
+                        'Field Calculation': get_calc_resolved_calculation(field, sourceTDS.fields)
                         })
 
 d = pd.DataFrame(d)
