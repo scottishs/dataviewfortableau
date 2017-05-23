@@ -1,5 +1,6 @@
 # import codecs
 import xlsxwriter
+import re
 from tableaudocumentapi import Workbook
 # from tableaudocumentapi import Datasource
 # from tableaudocumentapi import ConnectionParser
@@ -10,7 +11,46 @@ from tableaudocumentapi import Workbook
 sourceWB = Workbook('tableauworkbook.twb')
 printDatasource = False
 printWorksheet = True
-saveExcel = True
+saveExcel = False
+
+
+def get_resolved_calculation(fieldObj, allFieldsObj):
+    """ returns calculation value of a field, with resolved nested calculations """
+    if fieldObj.calculation is None:
+        return None
+
+    mappedField = fieldObj.calculation
+    while mappedField.find('[Calculation_') >= 0:
+            n = mappedField.find('[Calculation_')
+            toMap = mappedField[n:mappedField.find(']', n)+1]
+            mappedField = mappedField.replace(toMap, allFieldsObj[toMap].calculation)
+    return mappedField
+
+def get_name_resolved_calculation(fieldObj, allFieldsObj):
+    """ returns calculation value of a field, with resolved nested calculations """
+    if fieldObj.calculation is None:
+        return None
+
+    mappedField = fieldObj.calculation
+    while mappedField.find('[Calculation_') >= 0:
+            n = mappedField.find('[Calculation_')
+            toMap = mappedField[n:mappedField.find(']', n)+1]
+            mappedField = mappedField.replace(toMap, allFieldsObj[toMap].caption)
+    return mappedField
+
+
+
+if printWorksheet:
+    for ws in sourceWB.datasources[2:3]:
+        for f in ws.fields.values():
+            print ('######### GETTING: {}'.format(f.name))
+            print (get_name_resolved_calculation(f, ws.fields))
+            # print (get_nested_calculation(ws.fields['CY Label (Percentage)'], ws.fields))
+
+            # print (f.worksheets)
+            # print (f.id, f.name, f.caption)
+            # print (f.calculation)
+
 
 if printDatasource:
     for sourceTDS in sourceWB.datasources[2:3]:
@@ -36,13 +76,6 @@ if printDatasource:
             if blank_line:
                 print('')
         print('----------------------------------------------------------')
-
-if printWorksheet:
-    for ws in sourceWB.datasources[2:3]:
-        for f in ws.fields.values():
-            print f.worksheets
-            # print ws.fields[f]
-
 
 
 if saveExcel:
