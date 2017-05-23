@@ -1,16 +1,14 @@
 # import codecs
-import xlsxwriter
-import re
+# import xlsxwriter
+# import re
+import os
+import pandas as pd
 from tableaudocumentapi import Workbook
-# from tableaudocumentapi import Datasource
-# from tableaudocumentapi import ConnectionParser
-# from tableaudocumentapi import Connection
-# from tableaudocumentapi import dbclass
 
 # Setup
 sourceWB = Workbook('tableauworkbook.twb')
 printDatasource = False
-printWorksheet = True
+printWorksheet = False
 saveExcel = False
 
 
@@ -39,20 +37,24 @@ def get_name_resolved_calculation(fieldObj, allFieldsObj):
     return mappedField
 
 
-import os
-import glob
-import pandas as pd
-import numpy as np
-     
 # Loop through all files with the same file extension #
 d = []
-path = "C:\\Users\\eric.surma\\Documents\\Tools\\Tableau\\Python\\samples/*.twbx"
-for fname in glob.glob(path):
-    sourceWB = Workbook(fname)
-    for sourceTDS in sourceWB.datasources:
-        for count, field in enumerate(sourceTDS.fields.values()):
-            d.append({'Field': field.name, 'Type': field.datatype, 'Default Aggregation': field.default_aggregation,
-                      'Field Calculation': field.calculation})
+
+for fname in os.listdir(os.getcwd()):
+    if fname.endswith('twb') or fname.endswith('twbx') or fname.endswith('tds'):
+        sourceWB = Workbook(fname)
+        for sourceTDS in sourceWB.datasources:
+            for count, field in enumerate(sourceTDS.fields.values()):
+                if field.calculation is not None:
+                    calc = field.calculation.encode('utf-8')
+                else:
+                    calc = field.calculation
+
+                d.append({'Field': field.name
+                        , 'Type': field.datatype
+                        , 'Default Aggregation': field.default_aggregation
+                        , 'Field Calculation': calc
+                        })
 d = pd.DataFrame(d)
 d.to_csv('test.csv') # Output File
 
@@ -64,12 +66,12 @@ d.to_csv('test.csv') # Output File
 #             print ('######### GETTING: {}'.format(f.name))
 #             print (get_name_resolved_calculation(f, ws.fields))
 #             # print (get_nested_calculation(ws.fields['CY Label (Percentage)'], ws.fields))
-# 
+#
 #             # print (f.worksheets)
 #             # print (f.id, f.name, f.caption)
 #             # print (f.calculation)
-# 
-# 
+#
+#
 # if printDatasource:
 #     for sourceTDS in sourceWB.datasources[2:3]:
 #         ############################################################
@@ -90,12 +92,12 @@ d.to_csv('test.csv') # Output File
 #                 blank_line = True
 #             if field.description:
 #                 print('      the description is {}'.format(field.description))
-# 
+#
 #             if blank_line:
 #                 print('')
 #         print('----------------------------------------------------------')
-# 
-# 
+#
+#
 # if saveExcel:
 #     book = xlsxwriter.Workbook('pythonexcel.xlsx')
 #     sh = book.add_worksheet()
@@ -109,6 +111,6 @@ d.to_csv('test.csv') # Output File
 #             sh.write(row,2,f.caption)
 #             sh.write(row,3,f.calculation)
 #             row+=1
-# 
+#
 #     book.close()
 #==============================================================================
