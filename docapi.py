@@ -1,10 +1,8 @@
+
 import os
 import pandas as pd
-from tableaudocumentapi import Workbook
 import unicodedata
-
-# from tableaudocumentapi import Datasource
-# from tableaudocumentapi import ConnectionParser
+from tableaudocumentapi import Workbook
 # from tableaudocumentapi import Connection
 # from tableaudocumentapi import dbclass
 
@@ -26,11 +24,11 @@ def get_calc_resolved_calculation(fieldObj, allFieldsObj):
             n = mappedField.find('[Calculation_')
             toMap = mappedField[n:mappedField.find(']', n)+1]
             mappedField = mappedField.replace(toMap, allFieldsObj[toMap].calculation)
-    return unicodedata.normalize('NFKD', mappedField)
+    return mappedField.encode('utf-8').strip() #unicodedata.normalize('NFKD', mappedField)
 
 
 def get_name_resolved_calculation(fieldObj, allFieldsObj):
-    """ returns calculation value of a field, with resolved nested calculations """
+    """ returns calculation caption of a field, with resolved nested calculations """
     if fieldObj.calculation is None:
         return None
 
@@ -43,23 +41,33 @@ def get_name_resolved_calculation(fieldObj, allFieldsObj):
 
 
 
+
 # Loop through all files with the same file extension #
 d = []
+dw = []
 
 for fname in os.listdir(os.getcwd()):
+    # if fname == 'Sample Superstore Workbook ALT.twb':
     if fname.endswith('twb') or fname.endswith('twbx') or fname.endswith('tds'):
         sourceWB = Workbook(fname)
-        for sourceTDS in sourceWB.datasources:
-            for count, field in enumerate(sourceTDS.fields.values()):
+        for sourceTDS in sourceWB.datasources:)
+            if sourceTDS.name != 'Parameters':
+                for count, field in enumerate(sourceTDS.fields.values()):
+                    d.append({'Workbook': sourceWB.filename,
+                            'Field': field.name,
+                            'Type': field.datatype,
+                            'Default Aggregation': field.default_aggregation,
+                            'Field Calculation': get_calc_resolved_calculation(field, sourceTDS.fields)
+                            })
 
-                d.append({'Field': unicodedata.normalize('NFKD', field.name),
-                        'Type': field.datatype,
-                        'Default Aggregation': field.default_aggregation,
-                        'Field Calculation': get_calc_resolved_calculation(field, sourceTDS.fields)
-                        })
 d = pd.DataFrame(d)
 
-d.to_csv('Python Output File.csv') # Output File
+d.to_csv('Python Output File.csv'
+        , columns=['Workbook', 'Field', 'Type', 'Default Aggretation', 'Field Calculation']
+        ) # Output File
+
+
+
 
 
 #==============================================================================
