@@ -46,11 +46,15 @@ def get_name_resolved_calculation(fieldObj, allFieldsObj):
 d = []
 dw = []
 
-for fname in os.listdir(os.getcwd()):
+path = ""
+if path == "":
+    path = os.path.realpath(os.getcwd())
+
+for fname in os.listdir(path):
     # if fname == 'Sample Superstore Workbook ALT.twb':
     if fname.endswith('twb') or fname.endswith('twbx') or fname.endswith('tds'):
         sourceWB = Workbook(fname)
-        for sourceTDS in sourceWB.datasources:)
+        for sourceTDS in sourceWB.datasources:
             if sourceTDS.name != 'Parameters':
                 for count, field in enumerate(sourceTDS.fields.values()):
                     d.append({'Workbook': sourceWB.filename,
