@@ -1,0 +1,2108 @@
+,Field,Type,Default Aggregation,Field Calculation,Dup_Calc,Dup_Field
+434,# of Members (Actual),real,,"{ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])}",,
+351,# of Members (Projection),real,,"{ FIXED [Client], [Population],[FilledYear]: MAX([Projection_Members])}",,
+370,# of Months to Date ,integer,,"IF MAX([AsOf])>MAX([FilledYear])THEN 12
+ELSE DATEPART('month',MAX([AsOf]))
+END",,
+583,$ Decimal Label (Pharmacy),real,,"CASE [Parameters].[Parameter 7]
+    WHEN 'Ingredient Cost Per Claim' THEN [Metric Selector (copy)]
+END",,
+542,$ Integer Label (Pharmacy),real,,"CASE [Parameters].[Parameter 7]
+    WHEN 'Total Ingredient Cost' THEN [Metric Selector (copy)]
+    WHEN 'Plan Paid' THEN [Metric Selector (copy)]
+END",,
+525,$ Integer Label (tooltip),real,,"CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END
+END",,1
+487,$ Interger Label,real,,"CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END
+END",,1
+206,$ Sign Label,string,,"CASE [Parameters].[Parameter 2]
+    WHEN ""IC/Rx"" THEN ""$""
+    WHEN ""IC/PMPM"" THEN ""$""
+    WHEN ""IC/PMPY"" THEN ""$""
+    WHEN ""IC Total$"" THEN ""$""
+END",,
+557,% Label,real,,"CASE [Parameters].[Parameter 6]
+    WHEN 'Generic Utilization Rate' THEN CASE [Parameters].[Parameter 6]
+    WHEN 'Total Claims' THEN SUM([Act_Claims])
+    WHEN 'Total Ingredient Cost' THEN SUM([Act_IngCost])
+    WHEN 'Ingredient Cost Per Claim' THEN SUM([Act_IngCost])/SUM([Act_Claims])
+    WHEN 'Discount %' THEN 1-(SUM([Act_IngCost])/SUM([Act_AWP]))
+    WHEN 'Generic Utilization Rate' THEN ZN(
+SUM(IF CONTAINS(UPPER([ClaimType]), 'GENERIC') THEN [Act_Claims] END)
+/
+SUM([Act_Claims])
+)
+END
+    WHEN 'Discount %' THEN CASE [Parameters].[Parameter 6]
+    WHEN 'Total Claims' THEN SUM([Act_Claims])
+    WHEN 'Total Ingredient Cost' THEN SUM([Act_IngCost])
+    WHEN 'Ingredient Cost Per Claim' THEN SUM([Act_IngCost])/SUM([Act_Claims])
+    WHEN 'Discount %' THEN 1-(SUM([Act_IngCost])/SUM([Act_AWP]))
+    WHEN 'Generic Utilization Rate' THEN ZN(
+SUM(IF CONTAINS(UPPER([ClaimType]), 'GENERIC') THEN [Act_Claims] END)
+/
+SUM([Act_Claims])
+)
+END
+END",,
+533,% Label (Pharmacy),real,,"CASE [Parameters].[Parameter 7]
+    WHEN 'Generic Utilization Rate' THEN [Metric Selector (copy)]
+    WHEN 'Discount %' THEN [Metric Selector (copy)]
+END",,
+574,% of Total - Brand,real,,"SUM( IF [ClaimType] = ""Brand"" THEN [Act_Claims] END)
+/ 
+SUM([Act_Claims])",,
+539,% of Total - Generic MAC,real,,"SUM( IF [ClaimType] = ""Generic MAC"" THEN [Act_Claims] END)
+/ 
+SUM([Act_Claims])",,
+538,% of Total - Generic Non-MAC,real,,"SUM( IF [ClaimType] = ""Generic Non-MAC"" THEN [Act_Claims] END)
+/ 
+SUM([Act_Claims])",,
+565,% of Total Claims,real,,SUM([Act_Claims]) / TOTAL(SUM([Act_Claims])),,
+200,***  Act Members PY,boolean,,"{ FIXED [Client] : AVG(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PYTD' THEN [Act_Members] ELSE 0 END) } > 0",,
+210,2016,integer,,2016,,
+257,:Measure Names,string,,,,
+445,AWP per Claim (Actual),real,,ZN(SUM([Act_AWP])/SUM([Act_Claims])),,
+360,AWP per Claim (Projection),real,,ZN(SUM([Projection_AWP])/SUM([Projection_Claims])),,
+133,Act AWP,real,,,,
+187,Act Claims,real,,,,
+161,Act IngCost,real,,,,
+174,Act Members,real,,,,
+568,Act_Members,real,,,,
+168,Actual Members (LOD),real,,"{ FIXED [Population], [Contract], [PBP], [FilledMonth]:AVG([Act_Members])}",,
+292,Actual Membership (LOD),real,,"{FIXED [Client],[Population], [Contract], [PBP],[Quarter]: AVG([Contract_Members])}
+
+//Membership is provided at a quarterly client level by contract/PBP.  
+//Avg/Min/Max would all provide same number.",,
+378,AsOf,date,,,,
+184,Attr Year,integer,,attr(YEAR([FilledMonth])),,
+553,Avg % of Total - Brand,real,,"SUM( IF [ClaimType] = ""Brand"" THEN [Act_Claims] END)
+/
+TOTAL(SUM( IF [ClaimType] = ""Brand"" THEN [Act_Claims] END))",,
+499,Avg Membership (LOD),real,,"SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : 
+    AVG([Act_Members])
+}) 
+/MAX(MONTH([FilledMonth]))",,
+125,Brand AWP,real,,"IIF([GenericFlag]=""N"", IF [Exclude]=""N"" THEN [Act_AWP] END,0)",,
+337,Brand Claims,real,,,,
+253,Brand Discount %,real,,"(SUM(IIF([GenericFlag]=""N"", IF [Exclude]=""N"" THEN [Act_AWP] END,0))-SUM(IIF([GenericFlag]=""N"", IF [Exclude]=""N"" THEN [Act_IngCost] END,0)))/SUM(IIF([GenericFlag]=""N"", IF [Exclude]=""N"" THEN [Act_AWP] END,0))",,
+279,Brand Discount % YoY Difference,real,,([CY Discount % (copy)]-[PY Generic Discount % (copy)])/[PY Generic Discount % (copy)],,
+159,Brand Discount YTD (Down),string,,"IF [Total Ingredient Cost YTD (YoY) (copy 2)]<0 THEN ""▼ "" + STR(ROUND([Total Ingredient Cost YTD (YoY) (copy 2)]*100,1))+""%"" END",,
+207,Brand Discount YTD (Up),string,,"IF [Total Ingredient Cost YTD (YoY) (copy 2)]>=0 THEN ""▲ "" + STR(ROUND([Total Ingredient Cost YTD (YoY) (copy 2)]*100,1))+""%"" END",,
+231,Brand Discount YTD (Up/Down),string,,"IF [Total Ingredient Cost YTD (YoY) (copy 2)]>=0 
+THEN ""▲ "" + STR(ROUND([Total Ingredient Cost YTD (YoY) (copy 2)]*100,1))+""%"" 
+ELSEIF [Total Ingredient Cost YTD (YoY) (copy 2)]<0 
+THEN ""▼ "" + STR(ROUND(ABS([Total Ingredient Cost YTD (YoY) (copy 2)]*100),1))+""%""
+ELSE STR(ROUND([Total Ingredient Cost YTD (YoY) (copy 2)]*100,1))+""%""
+END",,
+167,By Population,string,,"""Only Projected""",,
+239,CY Avg Members,real,,"SUM([# of Members - Actual (copy 2)]) / MAX(DATEPART('month',[ThruDate]))",,
+128,CY Avg Members - ES,real,,"SUM([CY Members (LOD) (copy 2)])/MAX(DATEPART('month',[ThruDate]))",,
+244,CY Brand Discount %,real,,"(SUM([CY Total AWP (copy)])-SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""N"" AND [Exclude]=""N""
+THEN [Act_IngCost]
+END))/SUM([CY Total AWP (copy)])",,
+193,CY Claims PMPY,real,,"(SUM([Multiple Measure Formats (copy 2)])/SUM([# of Members - Actual (copy 2)]))
+*12",,
+185,CY Discount %,real,,(SUM([CY Total AWP (copy 2)])-SUM([CY Total Ingredient Cost (copy)]))/SUM([CY Total AWP (copy 2)]),,
+175,CY Generic Discount %,real,,"(SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+IF [Exclude]=""N"" THEN [Act_AWP] END END)-SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+IF [Exclude]=""N"" THEN [Act_IngCost] END END))/SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+IF [Exclude]=""N"" THEN [Act_AWP] END END)",,
+181,CY Generic Utilization Rate,real,,"SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+[Act_Claims] END)/SUM([Multiple Measure Formats (copy 2)])",,
+233,CY Ingredient Cost PMPM,real,,SUM([CY Total Scripts (copy 3)])/SUM([# of Members - Actual (copy 2)]),,
+215,CY Ingredient Cost per Claim,real,,SUM([CY Total Scripts (copy 3)])/SUM([Multiple Measure Formats (copy 2)]),,
+252,CY Label (All),string,,"// Current Year Label
+IFNULL(
+CASE [Parameters].[Parameter 2]
+    WHEN ""Discount"" THEN 
+        STR(ROUND(100*(SUM([CY Total AWP (copy 2)])-SUM([CY Total Ingredient Cost (copy)]))/SUM([CY Total AWP (copy 2)]), 1)) + ""%""
+    WHEN ""GUR"" THEN 
+        IF LEFT(STR(ROUND(100*SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+[Act_Claims] END)/SUM([Multiple Measure Formats (copy 2)]), 1)), 2) = "".""
+        THEN LEFT(STR(ROUND(100*SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+[Act_Claims] END)/SUM([Multiple Measure Formats (copy 2)]), 1)), 3) + ""%""
+        ELSE LEFT(STR(ROUND(100*SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+[Act_Claims] END)/SUM([Multiple Measure Formats (copy 2)]), 1)), 4) + ""%""
+        END
+    WHEN ""IC/Rx"" THEN 
+        IF LEN(STR(ROUND([PY Ingredient Cost per Claim (copy)], 0))) > 3
+        THEN ""$"" + LEFT(STR(ROUND([PY Ingredient Cost per Claim (copy)], 2)),1) + "","" + RIGHT(STR(ROUND([PY Ingredient Cost per Claim (copy)], 2)), len(STR(ROUND([PY Ingredient Cost per Claim (copy)],2)))-1)
+        ELSE ""$"" + STR(ROUND([PY Ingredient Cost per Claim (copy)], 2))
+        END
+    WHEN ""IC/PMPM"" THEN ""$"" + STR(ROUND([Rx PMPY - Actual (CY) (copy 2)], 2))
+    WHEN ""Total Claims"" THEN
+        IF LEN(STR(ROUND(SUM([Multiple Measure Formats (copy 2)]), 0))) > 6
+        THEN LEFT(STR(ROUND(SUM([Multiple Measure Formats (copy 2)]))), LEN(STR(ROUND(SUM([Multiple Measure Formats (copy 2)])))) - 6) + "","" + LEFT(RIGHT(STR(SUM([Multiple Measure Formats (copy 2)])), 6),3) + "","" + RIGHT(STR(ROUND(SUM([Multiple Measure Formats (copy 2)]), 0)), 3)
+        ELSEIF LEN(STR(ROUND(SUM([Multiple Measure Formats (copy 2)]), -3))) > 3
+        THEN LEFT(STR(SUM([Multiple Measure Formats (copy 2)])), LEN(STR(ROUND(SUM([Multiple Measure Formats (copy 2)]), 0))) - 3) + "","" + RIGHT(STR(ROUND(SUM([Multiple Measure Formats (copy 2)]), 0)), 3)
+        ELSE RIGHT(STR(ROUND(SUM([Multiple Measure Formats (copy 2)]), 0)), 3)
+        END
+    WHEN ""IC Total$"" THEN 
+        IF LEN(STR(ROUND(SUM([CY Total Scripts (copy 3)]), 0))) > 9
+        THEN ""$"" + MID(STR(ROUND(SUM([CY Total Scripts (copy 3)]),0)),1,LEN(STR(ROUND(SUM([CY Total Scripts (copy 3)]),0)))-9) + "","" + MID(STR(ROUND(SUM([CY Total Scripts (copy 3)]),0)),LEN(STR(ROUND(SUM([CY Total Scripts (copy 3)]),0)))-8, 3) + "","" + MID(STR(ROUND(SUM([CY Total Scripts (copy 3)]),0)),LEN(STR(ROUND(SUM([CY Total Scripts (copy 3)]),0)))-5, 3)+ "","" + MID(STR(ROUND(SUM([CY Total Scripts (copy 3)]),0)),LEN(STR(ROUND(SUM([CY Total Scripts (copy 3)]),0)))-2, 3)
+        ELSEIF LEN(STR(ROUND(SUM([CY Total Scripts (copy 3)]), -3))) > 6
+        THEN ""$"" + LEFT(STR(SUM([CY Total Scripts (copy 3)])), LEN(STR(ROUND(SUM([CY Total Scripts (copy 3)]),0))) - 6) + "","" + LEFT(RIGHT(STR(ROUND(SUM([CY Total Scripts (copy 3)]),0)), 6),3) + "","" + RIGHT(STR(ROUND(SUM([CY Total Scripts (copy 3)]), 0)), 3)
+        ELSE ""$"" + LEFT(STR(ROUND(SUM([CY Total Scripts (copy 3)]), -3)), LEN(STR(ROUND(SUM([CY Total Scripts (copy 3)]), -3))) - 3) + "","" + RIGHT(STR(ROUND(SUM([CY Total Scripts (copy 3)]), 0)), 3)
+        END
+    WHEN ""Rx/PMPY"" THEN str(ROUND([Rx PMPY - Actual (for trends) (copy)],1))
+END, ""N/A"")",,
+269,CY Label (Decimal),real,,"CASE [Parameters].[Parameter 2]
+    WHEN ""IC/Rx"" THEN ROUND([PY Ingredient Cost per Claim (copy)],2)
+    WHEN ""IC/PMPM"" THEN ROUND([Rx PMPY - Actual (CY) (copy 2)],2)
+    WHEN ""IC/PMPY"" THEN null
+    WHEN ""IC Total$"" THEN null
+    WHEN ""Total Claims"" THEN null
+    WHEN ""Rx/PMPY"" THEN ROUND([Rx PMPY - Actual (for trends) (copy)],2)
+END",,
+121,CY Label (Integer),real,,"CASE [Parameters].[Parameter 2]
+
+    WHEN ""Total Claims"" THEN SUM([Multiple Measure Formats (copy 2)])
+    WHEN ""IC Total$"" THEN SUM([CY Total Scripts (copy 3)])
+END",,
+130,CY Label (Percentage),real,,"CASE [Parameters].[Parameter 2]
+    WHEN ""Discount"" THEN (SUM([CY Total AWP (copy 2)])-SUM([CY Total Ingredient Cost (copy)]))/SUM([CY Total AWP (copy 2)])
+    WHEN ""GUR"" THEN SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+[Act_Claims] END)/SUM([Multiple Measure Formats (copy 2)])
+END",,
+135,CY Member N/A Label,string,,"IF ISNULL(STR([CY Members (LOD) (copy)])) THEN ""N/A"" END",,
+113,CY Members,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" THEN
+   [Act_Members]
+END",,
+105,CY Members (LOD),real,,"{ FIXED [Client], [Population], [Contract], [PBP], [FilledMonth]: AVG([CY Total Scripts (copy 2)])}",,
+221,CY Members (LOD) -ES,real,,"If [Parameters].[Parameter 1] = 'All Populations' THEN //Contract/PBP view selected
+    { FIXED [Year Label (copy)], [Client], [Contract], [PBP], [FilledMonth]: AVG([CY Total Scripts (copy 2)])}
+ELSE
+    { FIXED [Year Label (copy)], [Client], [Population], [FilledMonth]: AVG([CY Total Scripts (copy 2)])}
+END",,
+299,CY Rebates PMPM (Actual),real,,"SUM(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Population_Members] END)})/
+(COUNTD(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Quarter] END))*3)",,
+240,CY Total AWP,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" THEN
+[Act_AWP] END",,
+188,CY Total AWP (Discount),real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" THEN
+IF [Exclude]=""N"" THEN [Act_AWP] END END",,
+182,CY Total Brand AWP,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""N"" AND [Exclude]=""N""
+THEN [Act_AWP]
+END",,
+247,CY Total Brand Ingredient Cost,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""N"" AND [Exclude]=""N""
+THEN [Act_IngCost]
+END",,
+190,CY Total Generic AWP,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+IF [Exclude]=""N"" THEN [Act_AWP] END END",,
+108,CY Total Generic Ingredient Cost,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+IF [Exclude]=""N"" THEN [Act_IngCost] END END",,
+273,CY Total Generic Scripts,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+[Act_Claims] END",,
+256,CY Total Ingredient Cost,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" THEN 
+   [Act_IngCost]
+END",,
+242,CY Total Ingredient Cost (Discount),real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" THEN 
+   IF [Exclude]=""N"" THEN [Act_IngCost] END
+END",,
+216,CY Total Scripts,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" THEN 
+   [Act_Claims]
+END",,
+578,Chain Name,string,,,,
+526,ChainName,string,,,,
+115,Channel,string,,,,
+13,City,string,,,,
+136,Claim Type,string,,,,
+495,ClaimType,string,,,,
+460,Claims % of Total,real,,SUM(ZN([Act_Claims])) / TOTAL(SUM(ZN([Act_Claims]))),,
+418,Claims (Actual),real,,ZN([Act_Claims]),,
+355,Claims (Difference),real,,"SUM(ZN([Act_Claims]))-SUM(ZN([Projection_Claims])*DATEDIFF('day', DATE('1-1-' + STR(YEAR([AsOf]))), [AsOf])/365)",,
+442,Claims (Projection),real,,"ZN([Projection_Claims])*DATEDIFF('day', DATE('1-1-' + STR(YEAR([AsOf]))), [AsOf])/365",,
+400,Claims PMPY (% Difference),real,,([Rx PMPY - Actual (copy 2)]/[Rx PMPY - Actual (copy)]),,
+406,Claims PMPY (% Difference) (Down),string,,"IIF(([Rx PMPY - Actual (copy 2)]/[Rx PMPY - Actual (copy)])<0, ""▼ ""+STR(ROUND(([Rx PMPY - Actual (copy 2)]/[Rx PMPY - Actual (copy)])*100,1))+""%"","""")",,
+380,Claims PMPY (% Difference) (Up),string,,"IIF(([Rx PMPY - Actual (copy 2)]/[Rx PMPY - Actual (copy)])>=0, ""▲ ""+STR(ROUND(([Rx PMPY - Actual (copy 2)]/[Rx PMPY - Actual (copy)])*100,1))+""%"","""")",,
+401,Claims PMPY (% Difference) (Up/Down),string,,"IF ([Rx PMPY - Actual (copy 2)]/[Rx PMPY - Actual (copy)]) > 0
+THEN ""▼ "" + STR(ROUND(ABS(([Rx PMPY - Actual (copy 2)]/[Rx PMPY - Actual (copy)]))*100,1)) + ""%""
+ELSEIF ([Rx PMPY - Actual (copy 2)]/[Rx PMPY - Actual (copy)]) < 0
+THEN ""▲ "" + STR(Round(ABS(([Rx PMPY - Actual (copy 2)]/[Rx PMPY - Actual (copy)])*100),1)) + ""%""
+ELSE STR(ROUND(([Rx PMPY - Actual (copy 2)]/[Rx PMPY - Actual (copy)])*100,1)) + ""%""
+END",,
+415,Claims PMPY (Actual),real,,"(
+    (SUM(ZN([Act_Claims])) / [# of Months to Date (copy)])*12
+) 
+/
+SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])})",,
+366,Claims PMPY (Difference),real,,"(
+    (SUM(ZN([Act_Claims])) / [# of Months to Date (copy)])*12
+) 
+/
+SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])})-[Rx PMPY - Actual (copy)]",,
+446,Claims PMPY (Difference) (tooltip),string,,"IF (
+    (SUM(ZN([Act_Claims])) / [# of Months to Date (copy)])*12
+) 
+/
+SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])})-[Rx PMPY - Actual (copy)]>0 then ""lower"" else ""higher"" end",,
+376,Claims PMPY (Projection),real,,SUM([Projection_Claims])/SUM([# of Members - Actual (copy)]),,
+369,Claims PMPY - Difference (absolute value),real,,"ABS((
+    (SUM(ZN([Act_Claims])) / [# of Months to Date (copy)])*12
+) 
+/
+SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])})-[Rx PMPY - Actual (copy)])",,
+266,Claims PMPY YTD (Down),string,,"IF [YTD Difference (copy)]<0 THEN ""▼ "" + STR(ROUND([YTD Difference (copy)]*100,1))+""%"" END",,
+258,Claims PMPY YTD (Up),string,,"IF [YTD Difference (copy)]>=0 THEN ""▲ "" + STR(ROUND([YTD Difference (copy)]*100,1))+""%"" END",,
+132,Claims PMPY YTD (Up/Down),string,,"IF 
+[YTD Difference (copy)]>0 
+THEN ""▲ "" + STR(ROUND([YTD Difference (copy)]*100,1))+""%"" 
+ELSEIF [YTD Difference (copy)]<0 
+THEN ""▼ "" + STR(ROUND(ABS([YTD Difference (copy)]*100),1))+""%"" 
+ELSE STR(ROUND([YTD Difference (copy)]*100,1))+""%"" 
+END",,
+179,Claims PMPY YTD Difference,real,,([Rx PMPY - Actual (for trends) (copy)]-[Rx PMPY - Actual (CY) (copy)])/[Rx PMPY - Actual (CY) (copy)],,
+255,Client,string,,,,
+189,Client Parameter,string,,"""Training""",,
+99,Commercial,string,,,,
+194,Contract,string,,,,
+298,Contract Members,real,,,,
+317,Contract Members (LOD),real,,"{FIXED  [Client], [Contract], [PBP], YEAR([Quarter]) : AVG([Contract_Members])}
+
+//Membership is provided at a quarterly client level by contract/PBP.  
+//Avg/Min/Max would all provide same number.",,
+192,Core,string,,,,
+289,Core Category,string,,,,
+1,Country,string,,,,
+508,Current Year Filter,string,,If YEAR([FilledYear]) = [Parameters].[Parameter 5] THEN 'Show Year' ELSE 'Hide Year' END,,
+11,Customer ID,string,,,,
+9,Customer Name,string,,,,
+5,Discount,real,,,,
+410,Discount % (% Difference) (Down),string,,"IIF((([AWP per Claim (Actual) (copy)]-[Ingredient Cost per Claim (Actual) (copy)])/[AWP per Claim (Actual) (copy)]-[Discount% - Actual (copy)])<0, ""▼ ""+STR(ROUND((([AWP per Claim (Actual) (copy)]-[Ingredient Cost per Claim (Actual) (copy)])/[AWP per Claim (Actual) (copy)]-[Discount% - Actual (copy)])*100,1))+""%"","""")",,
+443,Discount % (% Difference) (Up),string,,"IIF((([AWP per Claim (Actual) (copy)]-[Ingredient Cost per Claim (Actual) (copy)])/[AWP per Claim (Actual) (copy)]-[Discount% - Actual (copy)])>=0, ""▲ ""+STR(ROUND((([AWP per Claim (Actual) (copy)]-[Ingredient Cost per Claim (Actual) (copy)])/[AWP per Claim (Actual) (copy)]-[Discount% - Actual (copy)])*100,1))+""%"","""")",,
+343,Discount % (% Difference) (Up/Down),string,,"IF (([AWP per Claim (Actual) (copy)]-[Ingredient Cost per Claim (Actual) (copy)])/[AWP per Claim (Actual) (copy)]-[Discount% - Actual (copy)]) > 0 
+THEN ""▲ "" + STR(ROUND(ABS((([AWP per Claim (Actual) (copy)]-[Ingredient Cost per Claim (Actual) (copy)])/[AWP per Claim (Actual) (copy)]-[Discount% - Actual (copy)])*100),1)) + ""%""
+ELSEIF (([AWP per Claim (Actual) (copy)]-[Ingredient Cost per Claim (Actual) (copy)])/[AWP per Claim (Actual) (copy)]-[Discount% - Actual (copy)]) < 0
+THEN ""▼ "" + STR(ROUND(ABS((([AWP per Claim (Actual) (copy)]-[Ingredient Cost per Claim (Actual) (copy)])/[AWP per Claim (Actual) (copy)]-[Discount% - Actual (copy)]))*100,1)) + ""%""
+ELSE STR(ROUND((([AWP per Claim (Actual) (copy)]-[Ingredient Cost per Claim (Actual) (copy)])/[AWP per Claim (Actual) (copy)]-[Discount% - Actual (copy)])*100,1)) + ""%""
+END",,
+439,Discount AWP per Claim (Actual),real,,"SUM(IF [Exclude] = 'N' THEN [Act_AWP] END)
+/
+SUM(IF [Exclude] = 'N' THEN [Act_Claims] END)",,
+405,Discount AWP per Claim (Projection),real,,"SUM(IF [Exclude] = 'N' THEN [Projection_AWP] END)
+/
+SUM(If [Exclude] = 'N' THEN [Projection_Claims] END)",,
+435,Discount Act Claims,real,,If [Exclude] = 'N' THEN [Act_Claims] END,,
+432,Discount Act IngCost,real,,If [Exclude] = 'N' THEN [Act_IngCost] END,,
+450,Discount Brand Indicator,integer,,"IF [ClaimType] = 'Brand'
+THEN 1
+ELSE NULL
+END",,
+453,Discount Claims,real,,IF [Exclude] = 'N' THEN [Act_Claims] END,,
+545,Discount Exclude,string,,"IF [Parameters].[Parameter 7] = 'Discount %' THEN
+    [Exclude]
+ELSE
+    'N'
+END",,
+481,Discount Exclusion,string,,"IF [Parameters].[Parameter 4] = 'Discount %' THEN
+    [Exclude]
+ELSE
+    'N'
+END",,
+386,Discount Generic Indicator,integer,,"IF [ClaimType] != 'Brand'
+THEN 1
+ELSE NULL
+END",,
+234,Discount Ingredient Cost,real,,"IF [Exclude]=""N"" THEN [Act_IngCost] END",,
+438,Discount Ingredient Cost PMPM (Actual),real,,"SUM(If [Exclude] = 'N' THEN [Act_IngCost] END)/[# of Months to Date (copy)]*SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])})",,
+362,Discount Ingredient Cost PMPM (Projection),real,,SUM(If [Exclude] = 'N' THEN [Projection_IngCost] END)/[Mbr Months - Actual (copy)],,
+383,Discount Ingredient Cost per Claim (Actual),real,,SUM(If [Exclude] = 'N' THEN [Act_IngCost] END)/SUM(IF [Exclude] = 'N' THEN [Act_Claims] END),,
+392,Discount Ingredient Cost per Claim (Projection),real,,"SUM(If [Exclude] = 'N' THEN [Projection_IngCost] END)
+/
+SUM(If [Exclude] = 'N' THEN [Projection_Claims] END)",,
+428,Discount Projection AWP,real,,IF [Exclude] = 'N' THEN [Projection_AWP] END,,
+387,Discount Projection Claims,real,,If [Exclude] = 'N' THEN [Projection_Claims] END,,
+431,Discount Projection IngCost,real,,If [Exclude] = 'N' THEN [Projection_IngCost] END,,
+361,Discount% (% Difference),real,,(([AWP per Claim (Actual) (copy)]-[Ingredient Cost per Claim (Actual) (copy)])/[AWP per Claim (Actual) (copy)]-[Discount% - Actual (copy)]),,1
+423,Discount% (Actual),real,,([AWP per Claim (Actual) (copy)]-[Ingredient Cost per Claim (Actual) (copy)])/[AWP per Claim (Actual) (copy)],,1
+357,Discount% (Actual) (for table header),real,,([AWP per Claim (Actual) (copy)]-[Ingredient Cost per Claim (Actual) (copy)])/[AWP per Claim (Actual) (copy)],,1
+416,Discount% (Difference),real,,(([AWP per Claim (Actual) (copy)]-[Ingredient Cost per Claim (Actual) (copy)])/[AWP per Claim (Actual) (copy)]-[Discount% - Actual (copy)]),,1
+398,Discount% (Projection),real,,([Discount AWP per Claim (Actual) (copy)]-[Discount Ingredient Cost per Claim (Actual) (copy)])/[Discount AWP per Claim (Actual) (copy)],,
+430,Discount% (Projection) (for table header),real,,[Discount% - Actual (copy)],,
+409,Discount% Brand (% Difference),real,,"ZN(
+    ((sum(IF [ClaimType] = 'Brand'
+THEN 1
+ELSE NULL
+END*IF [Exclude] = 'N' THEN [Act_AWP] END) - sum(IF [ClaimType] = 'Brand'
+THEN 1
+ELSE NULL
+END*If [Exclude] = 'N' THEN [Act_IngCost] END)) / sum(IF [ClaimType] = 'Brand'
+THEN 1
+ELSE NULL
+END*IF [Exclude] = 'N' THEN [Act_AWP] END)) 
+    - 
+    ((sum(IF [Exclude] = 'N' THEN [Projection_AWP] END*IF [ClaimType] = 'Brand'
+THEN 1
+ELSE NULL
+END) - sum(IF [ClaimType] = 'Brand'
+THEN 1
+ELSE NULL
+END*If [Exclude] = 'N' THEN [Projection_IngCost] END)) / sum(IF [Exclude] = 'N' THEN [Projection_AWP] END*IF [ClaimType] = 'Brand'
+THEN 1
+ELSE NULL
+END))
+)
+/
+((sum(IF [Exclude] = 'N' THEN [Projection_AWP] END*IF [ClaimType] = 'Brand'
+THEN 1
+ELSE NULL
+END) - sum(IF [ClaimType] = 'Brand'
+THEN 1
+ELSE NULL
+END*If [Exclude] = 'N' THEN [Projection_IngCost] END)) / sum(IF [Exclude] = 'N' THEN [Projection_AWP] END*IF [ClaimType] = 'Brand'
+THEN 1
+ELSE NULL
+END))",,
+353,Discount% Brand (% Difference) (Up/Down) ,string,,"IF [Discount% Brand (Projection) (copy 2)] > 0 
+THEN ""▼ "" + STR(ROUND(ABS([Discount% Brand (Projection) (copy 2)]*100),1)) + ""%""
+ELSEIF[Discount% Brand (Projection) (copy 2)] < 0
+THEN ""▲ "" + STR(ROUND(ABS([Discount% Brand (Projection) (copy 2)])*100,1)) + ""%""
+ELSE STR(ROUND([Discount% Brand (Projection) (copy 2)]*100,1)) + ""%""
+END",,
+437,Discount% Brand (Projection),real,,"ZN(
+    ((sum(IF [ClaimType] = 'Brand'
+THEN 1
+ELSE NULL
+END*IF [Exclude] = 'N' THEN [Projection_AWP] END) - sum(IF [ClaimType] = 'Brand'
+THEN 1
+ELSE NULL
+END*If [Exclude] = 'N' THEN [Projection_IngCost] END))
+        /
+        sum(IF [Exclude] = 'N' THEN [Projection_AWP] END*IF [ClaimType] = 'Brand'
+THEN 1
+ELSE NULL
+END)
+    )
+)",,
+391,Discount% Generic (% Difference),real,,"//ZN((sum([Discount Generic Indicator]*[Act IngCost])/sum([Discount Generic Indicator]*[Act AWP])) - (sum([Discount Generic Indicator]*[Projection IngCost])/sum([Projection AWP]*[Discount Generic Indicator])))
+
+ZN(
+    ((sum([Discount Brand Indicator (copy)]*IF [Exclude] = 'N' THEN [Act_AWP] END) - sum([Discount Brand Indicator (copy)]*If [Exclude] = 'N' THEN [Act_IngCost] END)) / sum([Discount Brand Indicator (copy)]*IF [Exclude] = 'N' THEN [Act_AWP] END)) 
+    - 
+    ((sum(IF [Exclude] = 'N' THEN [Projection_AWP] END*[Discount Brand Indicator (copy)]) - sum([Discount Brand Indicator (copy)]*If [Exclude] = 'N' THEN [Projection_IngCost] END)) / sum(IF [Exclude] = 'N' THEN [Projection_AWP] END*[Discount Brand Indicator (copy)]))
+)
+/
+((sum(IF [Exclude] = 'N' THEN [Projection_AWP] END*[Discount Brand Indicator (copy)]) - sum([Discount Brand Indicator (copy)]*If [Exclude] = 'N' THEN [Projection_IngCost] END)) / sum(IF [Exclude] = 'N' THEN [Projection_AWP] END*[Discount Brand Indicator (copy)]))",,
+421,Discount% Generic (% Difference) (Up/Down),string,,"IF [Discount% Brand (% Difference) (copy)] > 0 
+THEN ""▼ "" + STR(ROUND(ABS([Discount% Brand (% Difference) (copy)]*100),1)) + ""%""
+ELSEIF[Discount% Brand (% Difference) (copy)] < 0
+THEN ""▲ "" + STR(ROUND(ABS([Discount% Brand (% Difference) (copy)])*100,1)) + ""%""
+ELSE STR(ROUND([Discount% Brand (% Difference) (copy)]*100,1)) + ""%""
+END",,
+457,Discount% Generic (Projection),real,,ZN(1 - (sum([Discount Brand Indicator (copy)]*If [Exclude] = 'N' THEN [Projection_IngCost] END)/sum(IF [Exclude] = 'N' THEN [Projection_AWP] END*[Discount Brand Indicator (copy)]))),,
+98,Discounts ,integer,,"IF [Discounts] = ""X"" THEN 1 ELSE 0 END",,
+488,Drug Name,string,,,,
+352,Drug Name (Claim Type),string,,"[Drugname] + "" ("" + [ClaimType] + "")""",,
+217,Drug Type,string,,,,
+363,DrugType,string,,,,
+238,Drugname,string,,,,
+250,Exclude Flag (Discount-Related),string,,,,
+275,Exec Summary,string,,,,
+91,Executive Summary ,integer,,IF LOWER([Executive Summary]) = 'x' THEN 1 END,,
+222,Filled Month,date,,,,
+277,Filled Year,date,,,,
+477,Filled Year (Tooltip),integer,,INT(YEAR([FilledYear])),,
+408,Filled Year (for Tooltips),datetime,,"DATEADD('year', -2, [FilledYear])",,
+476,FilledMonth,date,,,,
+461,FilledMonth (Quarters),date,,"DATE(DATETRUNC('quarter', [FilledMonth]))",,
+456,FilledYear,date,,,,
+372,Filter for Current Year (Exec Summary),boolean,,YEAR([FilledYear])=YEAR([AsOf]),,
+219,GPI,string,,,,
+449,GUR (% Difference) (Down),string,,"IIF((ZN(SUM(ZN(IF [ClaimType]<>""Brand""
+THEN ZN([Act_Claims])
+END))/SUM(ZN([Act_Claims])))-[GUR - Actual (copy)])/[GUR - Actual (copy)]<0, ""▼ ""+STR(ROUND((ZN(SUM(ZN(IF [ClaimType]<>""Brand""
+THEN ZN([Act_Claims])
+END))/SUM(ZN([Act_Claims])))-[GUR - Actual (copy)])/[GUR - Actual (copy)]*100,1))+""%"","""")",,
+407,GUR (% Difference) (Up),string,,"IIF((ZN(SUM(ZN(IF [ClaimType]<>""Brand""
+THEN ZN([Act_Claims])
+END))/SUM(ZN([Act_Claims])))-[GUR - Actual (copy)])/[GUR - Actual (copy)]>=0, ""▲ ""+STR(ROUND((ZN(SUM(ZN(IF [ClaimType]<>""Brand""
+THEN ZN([Act_Claims])
+END))/SUM(ZN([Act_Claims])))-[GUR - Actual (copy)])/[GUR - Actual (copy)]*100,1))+""%"","""")",,
+384,GUR (% Difference) (Up/Down),string,,"IF (ZN(SUM(ZN(IF [ClaimType]<>""Brand""
+THEN ZN([Act_Claims])
+END))/SUM(ZN([Act_Claims])))-[GUR - Actual (copy)])/[GUR - Actual (copy)] > 0
+THEN ""▼ "" + STR(ROUND(ABS((ZN(SUM(ZN(IF [ClaimType]<>""Brand""
+THEN ZN([Act_Claims])
+END))/SUM(ZN([Act_Claims])))-[GUR - Actual (copy)])/[GUR - Actual (copy)])*100,1)) + ""%""
+ELSEIF (ZN(SUM(ZN(IF [ClaimType]<>""Brand""
+THEN ZN([Act_Claims])
+END))/SUM(ZN([Act_Claims])))-[GUR - Actual (copy)])/[GUR - Actual (copy)] < 0
+THEN ""▲ "" + STR(ROUND(ABS((ZN(SUM(ZN(IF [ClaimType]<>""Brand""
+THEN ZN([Act_Claims])
+END))/SUM(ZN([Act_Claims])))-[GUR - Actual (copy)])/[GUR - Actual (copy)]*100),1)) + ""%""
+ELSE STR(ROUND((ZN(SUM(ZN(IF [ClaimType]<>""Brand""
+THEN ZN([Act_Claims])
+END))/SUM(ZN([Act_Claims])))-[GUR - Actual (copy)])/[GUR - Actual (copy)]*100,1)) + ""%""
+END",,
+356,GUR (Actual),real,,"ZN(SUM(ZN(IF [ClaimType]<>""Brand""
+THEN ZN([Act_Claims])
+END))/SUM(ZN([Act_Claims])))",,
+429,GUR (Difference),real,,"(ZN(SUM(ZN(IF [ClaimType]<>""Brand""
+THEN ZN([Act_Claims])
+END))/SUM(ZN([Act_Claims])))-[GUR - Actual (copy)])/[GUR - Actual (copy)]",,
+358,GUR (Projection),real,,"SUM([Rx Generic - Actual (copy)])/SUM(ZN([Projection_Claims])*DATEDIFF('day', DATE('1-1-' + STR(YEAR([AsOf]))), [AsOf])/365)",,
+367,Generic - ALL,string,,"//STR([Claim Type]<>""Brand"")
+IF [ClaimType] <> ""Brand"" THEN ""Generic"" END",,
+280,Generic AWP,real,,"IIF([GenericFlag]=""Y"", IF [Exclude]=""N"" THEN [Act_AWP] END,0)",,
+455,Generic Claims (Actual),real,,"ZN(IF [ClaimType]<>""Brand""
+THEN ZN([Act_Claims])
+END)",,
+436,Generic Claims (Projection),real,,"ZN(IF [ClaimType]<>""Brand""
+THEN ZN([Projection_Claims])*DATEDIFF('day', DATE('1-1-' + STR(YEAR([AsOf]))), [AsOf])/365
+END)",,
+254,Generic Discount %,real,,(SUM([Brand AWP (copy)])-SUM([Brand Ingredient Cost (copy)]))/SUM([Brand AWP (copy)]),,
+186,Generic Discount % YoY Difference,real,,"((SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+IF [Exclude]=""N"" THEN [Act_AWP] END END)-SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+IF [Exclude]=""N"" THEN [Act_IngCost] END END))/SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+IF [Exclude]=""N"" THEN [Act_AWP] END END)-[PY Brand Discount % (copy)])/[PY Brand Discount % (copy)]",,
+260,Generic Discount YTD (Down),string,,"IF [Brand Discount % YoY Difference (copy)]<0 THEN ""▼ "" + STR(ROUND([Brand Discount % YoY Difference (copy)]*100,1))+""%"" END",,
+196,Generic Discount YTD (Up),string,,"IF [Brand Discount % YoY Difference (copy)]>=0 THEN ""▲ "" + STR(ROUND([Brand Discount % YoY Difference (copy)]*100,1))+""%"" END",,
+214,Generic Discount YTD (Up/Down),string,,"IF [Brand Discount % YoY Difference (copy)]>=0 
+THEN ""▲ "" + STR(ROUND([Brand Discount % YoY Difference (copy)]*100,1))+""%""
+ELSEIF [Brand Discount % YoY Difference (copy)]<0 
+THEN ""▼ "" + STR(ROUND(ABS([Brand Discount % YoY Difference (copy)]*100),1))+""%"" 
+ELSE STR(ROUND([Brand Discount % YoY Difference (copy)]*100,1))+""%"" 
+END",,
+213,Generic Flag,string,,,,
+146,Generic Ingredient Cost,real,,"IIF([GenericFlag]=""Y"", IF [Exclude]=""N"" THEN [Act_IngCost] END,0)",,
+375,Generic MAC,string,,"IF[ClaimType]=""Generic MAC"" THEN[ClaimType]END",,
+163,Generic Utiilization Rate YoY Difference,real,,"(SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+[Act_Claims] END)/SUM([Multiple Measure Formats (copy 2)])-[PY Claims PMPY (copy)])/[PY Claims PMPY (copy)]",,
+107,Generic Utilization Rate YTD (Down),string,,"IF [Brand Discount % YoY Difference (copy 2)]<0 THEN ""▼ "" + STR(ROUND([Brand Discount % YoY Difference (copy 2)]*100,1))+""%"" END",,
+137,Generic Utilization Rate YTD (Up),string,,"IF [Brand Discount % YoY Difference (copy 2)]>=0 THEN ""▲ "" + STR(ROUND([Brand Discount % YoY Difference (copy 2)]*100,1))+""%"" END",,
+170,Generic Utilization Rate YTD (Up/Down),string,,"IF [Brand Discount % YoY Difference (copy 2)]>=0 
+THEN ""▲ "" + STR(ROUND([Brand Discount % YoY Difference (copy 2)]*100,1))+""%""
+ELSEIF [Brand Discount % YoY Difference (copy 2)]<0 
+THEN ""▼ "" + STR(ROUND(ABS([Brand Discount % YoY Difference (copy 2)]*100),1))+""%"" 
+ELSE STR(ROUND([Brand Discount % YoY Difference (copy 2)]*100,1))+""%"" 
+END",,
+382,GenericFlag,string,,,,
+97,Geography ,integer,,IF LOWER([Geo]) = 'x' THEN 1 END,,
+427,Help,string,,"""Help""",,
+140,Info - Select Month,integer,,INDEX(),,
+89,Ingredient Cost ,integer,,"IF [Ingredient Cost] = ""X"" THEN 1 ELSE 0 END",,
+454,Ingredient Cost ($ Difference),real,,[Actuals (copy 2)]-[Projection (copy)],,
+451,Ingredient Cost (Actual),real,,"CASE [Parameters].[Measure Selector (copy)]
+    WHEN ""IC PMPM"" THEN ZN(SUM([Act_IngCost])/[# of Months to Date (copy)]*SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])}))
+    WHEN ""IC/Rx"" THEN ZN(SUM([Act_IngCost])/SUM([Act_Claims]))
+ END",,
+440,Ingredient Cost (Projection),real,,"CASE [Parameters].[Measure Selector (copy)]
+    WHEN ""IC PMPM"" THEN [IC PMPM - Actual (copy)]
+    WHEN ""IC/Rx"" THEN [Avg IC - Actual (copy)]
+  END",,
+448,Ingredient Cost PMPM (% Difference),real,,"(ZN(SUM([Act_IngCost])/[# of Months to Date (copy)]*SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])}))-[IC PMPM - Actual (copy)])/[IC PMPM - Actual (copy)]",,
+441,Ingredient Cost PMPM (% Difference) (Down),string,,"IIF((ZN(SUM([Act_IngCost])/[# of Months to Date (copy)]*SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])}))-[IC PMPM - Actual (copy)])/[IC PMPM - Actual (copy)]<0, ""▼ ""+STR(ROUND((ZN(SUM([Act_IngCost])/[# of Months to Date (copy)]*SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])}))-[IC PMPM - Actual (copy)])/[IC PMPM - Actual (copy)]*100,1))+""%"","""")",,
+399,Ingredient Cost PMPM (% Difference) (Up),string,,"IIF((ZN(SUM([Act_IngCost])/[# of Months to Date (copy)]*SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])}))-[IC PMPM - Actual (copy)])/[IC PMPM - Actual (copy)]>=0, ""▲ ""+STR(ROUND((ZN(SUM([Act_IngCost])/[# of Months to Date (copy)]*SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])}))-[IC PMPM - Actual (copy)])/[IC PMPM - Actual (copy)]*100,1))+""%"","""")",,
+347,Ingredient Cost PMPM (% Difference) (Up/Down),string,,"IF (ZN(SUM([Act_IngCost])/[# of Months to Date (copy)]*SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])}))-[IC PMPM - Actual (copy)])/[IC PMPM - Actual (copy)] > 0
+THEN ""▼ "" + STR(ROUND(ABS((ZN(SUM([Act_IngCost])/[# of Months to Date (copy)]*SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])}))-[IC PMPM - Actual (copy)])/[IC PMPM - Actual (copy)])*100,1)) + ""%""
+ELSEIF (ZN(SUM([Act_IngCost])/[# of Months to Date (copy)]*SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])}))-[IC PMPM - Actual (copy)])/[IC PMPM - Actual (copy)] < 0
+THEN ""▲ "" + STR(ROUND(ABS((ZN(SUM([Act_IngCost])/[# of Months to Date (copy)]*SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])}))-[IC PMPM - Actual (copy)])/[IC PMPM - Actual (copy)]*100),1)) + ""%""
+ELSE STR(ROUND((ZN(SUM([Act_IngCost])/[# of Months to Date (copy)]*SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])}))-[IC PMPM - Actual (copy)])/[IC PMPM - Actual (copy)]*100,1))+""%""
+END",,
+379,Ingredient Cost PMPM (Actual),real,,"ZN(SUM([Act_IngCost])/[# of Months to Date (copy)]*SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])}))",,
+419,Ingredient Cost PMPM (Projection),real,,ZN(SUM([Projection_IngCost])/[Mbr Months - Actual (copy)]),,
+199,Ingredient Cost PMPM YTD (Down),string,,"IF [Claims PMPY YTD Difference (copy)]<0 THEN ""▼ "" + STR(ROUND([Claims PMPY YTD Difference (copy)]*100,1))+""%"" END",,
+162,Ingredient Cost PMPM YTD (Up),string,,"IF [Claims PMPY YTD Difference (copy)]>=0 THEN ""▲ "" + STR(ROUND([Claims PMPY YTD Difference (copy)]*100,1))+""%"" END",,
+276,Ingredient Cost PMPM YTD (Up/Down),string,,"IF [Claims PMPY YTD Difference (copy)]>=0 
+THEN ""▲ "" + STR(ROUND([Claims PMPY YTD Difference (copy)]*100,1))+""%"" 
+ELSEIF [Claims PMPY YTD Difference (copy)]<0 
+THEN ""▼ "" + STR(ROUND(ABS([Claims PMPY YTD Difference (copy)]*100),1))+""%"" 
+ELSE STR(ROUND([Claims PMPY YTD Difference (copy)]*100,1))+""%"" 
+END",,
+123,Ingredient Cost PMPM YTD Difference,real,,([Rx PMPY - Actual (CY) (copy 2)]-[CY IC PMPM (copy)])/[CY IC PMPM (copy)],,
+335,Ingredient Cost after Rebates,real,,"IF [Parameters].[Parameter 3]=""per Script"" 
+THEN (SUM([Total_IngCost])-SUM([Rebates]))/SUM([Total_Claims])  //if per script, divide ingredient cost less rebates by total claims
+ELSE (SUM([Total_IngCost])-SUM([Rebates]))/SUM([Projected Membership (LOD) (copy 2)])/3  //if PMPM, divide ingredient cost less rebates by quarterly membership and 3 (months in quarter)
+END",,
+338,Ingredient Cost before Rebates,real,,"IF [Parameters].[Parameter 3]=""per Script"" 
+THEN (SUM([Total_IngCost]))/SUM([Total_Claims]) //if per script, divide ingredient costs by total claims
+ELSE (SUM([Total_IngCost]))/SUM([Projected Membership (LOD) (copy 2)])/3 //if PMPM, divide ingredient costs by quarterly membership and 3 (number of months in quarter)
+END",,
+178,Ingredient Cost per Claim,real,,SUM([Act_IngCost])/SUM([Act_Claims]),,1
+390,Ingredient Cost per Claim (% Difference),real,,(ZN(SUM([Act_IngCost])/SUM([Act_Claims]))-[Avg IC - Actual (copy)])/[Avg IC - Actual (copy)],,
+414,Ingredient Cost per Claim (% Difference) (Down),string,,"IIF([Ingredient Cost PMPM (% Difference) (copy)]<0, ""▼ ""+STR(ROUND([Ingredient Cost PMPM (% Difference) (copy)]*100,1))+""%"","""")",,
+413,Ingredient Cost per Claim (% Difference) (Up),string,,"IIF([Ingredient Cost PMPM (% Difference) (copy)]>=0, ""▲ ""+STR(ROUND([Ingredient Cost PMPM (% Difference) (copy)]*100,1))+""%"","""")",,
+447,Ingredient Cost per Claim (% Difference) (Up/Down),string,,"IF [Ingredient Cost PMPM (% Difference) (copy)] > 0
+THEN ""▼ ""+STR(ROUND(ABS([Ingredient Cost PMPM (% Difference) (copy)])*100,1))+""%""
+ELSEIF [Ingredient Cost PMPM (% Difference) (copy)] < 0
+THEN ""▲ ""+STR(ROUND(ABS([Ingredient Cost PMPM (% Difference) (copy)]*100),1))+""%""
+ELSE STR(ROUND([Ingredient Cost PMPM (% Difference) (copy)]*100,1))+""%""
+END",,
+452,Ingredient Cost per Claim (Actual),real,,ZN(SUM([Act_IngCost])/SUM([Act_Claims])),,1
+354,Ingredient Cost per Claim (Actual) (for table headers),real,,ZN(SUM([Act_IngCost])/SUM([Act_Claims])),,1
+385,Ingredient Cost per Claim (Projection),real,,ZN(SUM([Projection_IngCost])/SUM([Projection_Claims])),,
+396,Ingredient Cost per Claim (Projection) (copy),real,,SUM(IF [Exclude] = 'N' THEN [Projection_IngCost] END)/SUM(IF [Exclude] = 'N' THEN [Projection_Claims] END),,
+368,Ingredient Cost per Claim (Projection) (for table headers),real,,[Avg IC - Actual (copy)],,
+251,Ingredient Cost per Claim YTD (Down),string,,"IF [Claims PMPY YTD Difference (copy 2)]<0 THEN ""▼ "" + STR(ROUND([Claims PMPY YTD Difference (copy 2)]*100,1))+""%"" END",,
+230,Ingredient Cost per Claim YTD (Up),string,,"IF [Claims PMPY YTD Difference (copy 2)]>=0 THEN ""▲ "" + STR(ROUND([Claims PMPY YTD Difference (copy 2)]*100,1))+""%"" END",,
+261,Ingredient Cost per Claim YTD (Up/Down),string,,"IF [Claims PMPY YTD Difference (copy 2)]<0 
+THEN ""▼ "" + STR(ROUND(ABS([Claims PMPY YTD Difference (copy 2)]*100),1))+""%"" 
+ELSEIF [Claims PMPY YTD Difference (copy 2)]>=0 
+THEN ""▲ "" + STR(ROUND([Claims PMPY YTD Difference (copy 2)]*100,1))+""%""
+ELSE STR(ROUND([Claims PMPY YTD Difference (copy 2)]*100,1))+""%""
+END",,
+171,Ingredient Cost per Claim YTD Difference,real,,([PY Ingredient Cost per Claim (copy)]-SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)]))/SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)]),,
+550,Integer Label (Pharmacy),real,,"CASE [Parameters].[Parameter 7]
+    WHEN 'Total Claims' THEN [Metric Selector (copy)]
+END",,
+15,Manufacturer,string,,,,
+570,Margin $,real,,[Act_AWP] - [Act_IngCost],,
+169,Max Year,integer,,MAX({ FIXED 1 : MAX(YEAR([FilledMonth])) }),,
+102,Medicaid,string,,,,
+548,Member County,string,,"IFNULL([MemberCounty], 'UNKNOWN')",,
+586,Member County - Nonmasked,string,,,,
+345,Member Months (Actual),real,,"[# of Months to Date (copy)]*SUM({ FIXED [Client], [Population],[FilledYear]:MAX([Act_Members])})",,
+422,Member Months (Projection),real,,SUM([# of Members - Actual (copy)])*12,,
+531,Member State,string,,,,
+503,Membership (LOD),real,,"{FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])}",,
+263,Membership Arrow,string,,"IF ([CY Members (LOD) (copy)] - [Avg CY Members (LOD) (copy)]) > 0 
+THEN ""▲""
+ELSEIF ([CY Members (LOD) (copy)] - [Avg CY Members (LOD) (copy)]) < 0 THEN ""▼""
+END",,
+203,Membership Change,real,,ABS([CY Members (LOD) (copy)] - [Avg CY Members (LOD) (copy)]),,
+567,Metric (Geo),string,,"""Total Claims""",,1
+527,Metric (Pharmacy),string,,"""Total Claims""",,1
+501,Metric (Specialty),string,,"""Total Claims""",,1
+484,Metric Selector (Pharmacy),real,,"CASE [Parameters].[Parameter 7]
+    WHEN 'Total Ingredient Cost' THEN SUM([Act_IngCost])
+    //WHEN 'Generic Utilization Rate' THEN [Generic Utilization Rate]
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN ZN(
+SUM(IF CONTAINS([SpecialtyType], ""SPECIALTY"") THEN [Act_IngCost] END)
+/
+SUM([Act_IngCost])
+)
+    WHEN 'Drug%/TC' THEN [Specialty % of Total Spend (copy)]
+    //
+    WHEN 'Total Claims' THEN SUM([Act_Claims])
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END",,
+552,Metric Selector - Geo,real,,"CASE [Parameters].[Parameter 6]
+    WHEN 'Total Claims' THEN SUM([Act_Claims])
+    WHEN 'Total Ingredient Cost' THEN SUM([Act_IngCost])
+    WHEN 'Ingredient Cost Per Claim' THEN SUM([Act_IngCost])/SUM([Act_Claims])
+    WHEN 'Discount %' THEN 1-(SUM([Act_IngCost])/SUM([Act_AWP]))
+    WHEN 'Generic Utilization Rate' THEN ZN(
+SUM(IF CONTAINS(UPPER([ClaimType]), 'GENERIC') THEN [Act_Claims] END)
+/
+SUM([Act_Claims])
+)
+END",,
+540,Metric Selector - Pharmacy,real,,"CASE [Parameters].[Parameter 7]
+    WHEN 'Total Claims' THEN SUM([Act_Claims])
+    WHEN 'Total Ingredient Cost' THEN SUM([Act_IngCost])
+    WHEN 'Ingredient Cost Per Claim' THEN SUM([Act_IngCost])/SUM([Act_Claims])
+    WHEN 'Discount %' THEN 1-(SUM([Act_IngCost])/SUM([Act_AWP]))
+    WHEN 'Generic Utilization Rate' THEN ZN(
+SUM(IF CONTAINS(UPPER([ClaimType]), 'GENERIC') THEN [Act_Claims] END)
+/
+SUM([Act_Claims])
+)
+    //WHEN 'Plan Paid' THEN SUM([PlanPay]) 
+END",,
+156,Minibar Trends Color,string,,"IF NOT(ISNULL((ZN([Multiple Measure Formats (copy)]) - LOOKUP(ZN([Multiple Measure Formats (copy)]), -1)) / ABS(LOOKUP(ZN([Multiple Measure Formats (copy)]), -1))))
+    THEN STR(MAX(YEAR([FilledMonth])))
+    ELSE ""blank""       
+END",,
+513,MoM % Difference,real,,"IF [Parameters].[Parameter 4]=""Discount %"" OR [Parameters].[Parameter 4]=""Generic Utilization Rate"" THEN 
+    IF attr(YEAR([FilledMonth])) =  [Parameters].[Parameter 5]
+        THEN ZN(CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END) - LOOKUP(ZN(CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END), -1)
+    END
+ELSE
+    IF attr(YEAR([FilledMonth])) =  [Parameters].[Parameter 5]
+        THEN (ZN(CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END) - LOOKUP(ZN(CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END), -1)) / ABS(LOOKUP(ZN(CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END), -1)) 
+    END
+END",,
+464,MoM Period Label,string,,"STR(DATENAME('month',(Lookup(MAX([FilledMonth]),-1)))) + "" "" + STR([Parameters].[Parameter 5])
++ "" to ""
++ STR(DATENAME('month',(Lookup(MAX([FilledMonth]),0)))) + "" "" + STR([Parameters].[Parameter 5])",,
+117,Month Value,integer,,MONTH([FilledMonth]),,
+232,Month over Month,string,,"""month""",,
+124,More (Text),string,,"""More""",,
+8,Number of Records,integer,,1,,1
+246,PBP,string,,,,
+134,PPY Claims PMPY,real,,"SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PPYTD'
+    THEN ZN([Act_Claims])
+    END
+)
+/
+SUM({ FIXED 
+       [Population], [FilledMonth], [Contract], [PBP] :
+            MAX(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PPYTD'
+                THEN [Act_Members]
+                END
+                )         
+})
+
+* 12",,
+129,PPY Discount %,real,,"(SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PPYTD' THEN IF [Exclude]=""N"" THEN [Act_AWP] END END)
+-SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PPYTD' THEN IF [Exclude]=""N"" THEN [Act_IngCost] END END))
+/
+SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PPYTD' THEN IF [Exclude]=""N"" THEN [Act_AWP] END END)",,
+201,PPY Generic Utilization Rate,real,,"SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PPYTD' AND [GenericFlag] = 'Y'
+    THEN ZN([Act_Claims])
+    END
+)
+/
+SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PPYTD'
+    THEN ZN([Act_Claims])
+    END
+)",,
+262,PPY Ingredient Cost PMPM,real,,"SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PPYTD'
+    THEN ZN([Act_IngCost])
+    END
+)
+/
+SUM(
+    { FIXED 
+       [Population], [FilledMonth], [Contract], [PBP]:
+            MAX(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PPYTD'
+                THEN [Act_Members]
+                END)         
+    }
+)",,
+151,PPY Ingredient Cost per Claim,real,,"SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PPYTD'
+    THEN ZN([Act_IngCost])
+    END
+)
+/
+SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PPYTD'
+    THEN ZN([Act_Claims])
+    END
+)",,
+145,PPY Label,string,,"// Prior Year Label
+IFNULL(
+CASE [Parameters].[Parameter 2]
+    WHEN ""Discount"" THEN 
+        STR(ROUND(100*[PY Discount % (copy)], 1)) + ""%""
+    WHEN ""GUR"" THEN 
+        IF LEFT(STR(ROUND(100*[PY Generic Utilization Rate (copy)], 1)), 2) = "".""
+        THEN LEFT(STR(ROUND(100*[PY Generic Utilization Rate (copy)], 1)), 3) + ""%""
+        ELSE LEFT(STR(ROUND(100*[PY Generic Utilization Rate (copy)], 1)), 4) + ""%""
+        END
+    WHEN ""IC/Rx"" THEN 
+        IF LEN(STR(ROUND([PY Ingredient Cost per Claim (copy 2)], 0))) > 3
+        THEN ""$"" + LEFT(STR(ROUND([PY Ingredient Cost per Claim (copy 2)], 2)),1) + "","" + RIGHT(STR(ROUND([PY Ingredient Cost per Claim (copy 2)], 2)), len(STR(ROUND([PY Ingredient Cost per Claim (copy 2)],2)))-1)
+        ELSE ""$"" + STR(ROUND([PY Ingredient Cost per Claim (copy 2)], 2))
+        END
+    WHEN ""IC/PMPM"" THEN ""$"" + STR(ROUND([PY Ingredient Cost PMPM (copy)], 2))
+    WHEN ""Total Claims"" THEN
+        IF LEN(STR(ROUND(SUM([PPY Total Ingredient Cost (copy)]), -3))) > 6
+        THEN LEFT(STR(SUM([PPY Total Ingredient Cost (copy)])), LEN(STR(SUM([PPY Total Ingredient Cost (copy)]))) - 6) + "","" + LEFT(RIGHT(STR(SUM([PPY Total Ingredient Cost (copy)])), 6),3) + "","" + RIGHT(STR(ROUND(SUM([PPY Total Ingredient Cost (copy)]), 0)), 3)
+        ELSEIF LEN(STR(ROUND(SUM([PPY Total Ingredient Cost (copy)]), -3))) > 3
+        THEN LEFT(STR(SUM([PPY Total Ingredient Cost (copy)])), LEN(STR(ROUND(SUM([PPY Total Ingredient Cost (copy)]), 0))) - 3) + "","" + RIGHT(STR(ROUND(SUM([PPY Total Ingredient Cost (copy)]), 0)), 3)
+        ELSE RIGHT(STR(ROUND(SUM([PPY Total Ingredient Cost (copy)]), 0)), 3)
+        END
+    WHEN ""IC Total$"" THEN 
+        IF LEN(STR(ROUND(SUM([PY Total Ingredient Cost (copy 3)]), -3))) > 6
+        THEN ""$"" + LEFT(STR(ROUND(SUM([PY Total Ingredient Cost (copy 3)]), -3)), LEN(STR(ROUND(SUM([PY Total Ingredient Cost (copy 3)]), -3))) - 6) + "","" + LEFT(RIGHT(STR(ROUND(SUM([PY Total Ingredient Cost (copy 3)]), 0)), 6),3) + "","" + RIGHT(STR(ROUND(SUM([PY Total Ingredient Cost (copy 3)]), -3)), 3)
+        ELSE ""$"" + LEFT(STR(ROUND(SUM([PY Total Ingredient Cost (copy 3)]), -3)), LEN(STR(ROUND(SUM([PY Total Ingredient Cost (copy 3)]), -3))) - 3) + "","" + RIGHT(STR(ROUND(SUM([PY Total Ingredient Cost (copy 3)]), 0)), 3)
+        END
+    WHEN ""Rx/PMPY"" THEN str(ROUND([PY Claims PMPY (copy 2)],1))
+END, ""N/A"")",,
+183,PPY Total Ingredient Cost,real,,"SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PPYTD'
+    THEN ZN([Act_IngCost])
+    END
+)",,
+157,PPY Total Scripts,real,,"SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PPYTD'
+    THEN ZN([Act_Claims])
+    END
+)",,
+241,PPYTD Difference w/ Arrows,string,,"IF [YTD Difference (copy 3)] > 0 
+    THEN ""▲"" + STR(ROUND(100*[YTD Difference (copy 3)],1)) + ""%"" 
+    ELSEIF [YTD Difference (copy 3)] < 0 THEN ""▼"" + STR(ROUND(100*abs([YTD Difference (copy 3)]),1)) + ""%"" 
+    ELSE STR(ROUND(100*[YTD Difference (copy 3)],1)) + ""%"" 
+END",,
+166,PY Avg Members,real,,"SUM([# of Members - Actual (CY) (copy)])/MAX(DATEPART('month',[ThruDate]))",,
+142,PY Brand Discount %,real,,(SUM([PY Total AWP (copy)])-SUM([PY Total Ingredient Cost (copy)]))/SUM([PY Total AWP (copy)]),,
+237,PY Claims PMPY,real,,"SUM([CY Total Scripts (copy)])
+/
+SUM([# of Members - Actual (CY) (copy)]) *12",,
+109,PY Discount %,real,,(SUM([PY Total AWP (copy 2)])-SUM([PY Total Ingredient Cost (copy 2)]))/SUM([PY Total AWP (copy 2)]),,
+191,PY Generic Discount %,real,,(SUM([PY Total Brand AWP (copy)])-SUM([PY Total Brand Ingredient Cost (copy)]))/SUM([PY Total Brand AWP (copy)]),,
+111,PY Generic Utilization Rate,real,,SUM([PY Total Scripts (copy 2)])/SUM([CY Total Scripts (copy)]),,
+172,PY Ingredient Cost PMPM,real,,SUM([PY Total Scripts (copy)])/SUM([# of Members - Actual (CY) (copy)]),,
+110,PY Ingredient Cost per Claim,real,,SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)]),,
+104,PY Label (All),string,,"// Prior Year Label
+IFNULL(
+CASE [Parameters].[Parameter 2]
+    WHEN ""Discount"" THEN 
+        STR(ROUND(100*(SUM([PY Total AWP (copy 2)])-SUM([PY Total Ingredient Cost (copy 2)]))/SUM([PY Total AWP (copy 2)]), 1)) + ""%""
+    WHEN ""GUR"" THEN 
+        IF LEFT(STR(ROUND(100*[PY Claims PMPY (copy)], 1)), 2) = "".""
+        THEN LEFT(STR(ROUND(100*[PY Claims PMPY (copy)], 1)), 3) + ""%""
+        ELSE LEFT(STR(ROUND(100*[PY Claims PMPY (copy)], 1)), 4) + ""%""
+        END
+    WHEN ""IC/Rx"" THEN 
+        IF LEN(STR(ROUND(SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)]), 0))) > 3
+        THEN ""$"" + LEFT(STR(ROUND(SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)]), 2)),1) + "","" + RIGHT(STR(ROUND(SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)]), 2)), len(STR(ROUND(SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)]),2)))-1)
+        ELSE ""$"" + STR(ROUND(SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)]), 2))
+        END
+    WHEN ""IC/PMPM"" THEN ""$"" + STR(ROUND([CY IC PMPM (copy)], 2))
+    WHEN ""Total Claims"" THEN
+        IF LEN(STR(ROUND(SUM([CY Total Scripts (copy)]), -3))) > 6
+        THEN LEFT(STR(SUM([CY Total Scripts (copy)])), LEN(STR(SUM([CY Total Scripts (copy)]))) - 6) + "","" + LEFT(RIGHT(STR(SUM([CY Total Scripts (copy)])), 6),3) + "","" + RIGHT(STR(ROUND(SUM([CY Total Scripts (copy)]), 0)), 3)
+        ELSEIF LEN(STR(ROUND(SUM([CY Total Scripts (copy)]), -3))) > 3
+        THEN LEFT(STR(SUM([CY Total Scripts (copy)])), LEN(STR(ROUND(SUM([CY Total Scripts (copy)]), 0))) - 3) + "","" + RIGHT(STR(ROUND(SUM([CY Total Scripts (copy)]), 0)), 3)
+        ELSE RIGHT(STR(ROUND(SUM([CY Total Scripts (copy)]), 0)), 3)
+        END
+    WHEN ""IC Total$"" THEN
+        IF LEN(STR(ROUND(SUM([PY Total Scripts (copy)]), 0))) > 9
+        THEN ""$"" + MID(STR(ROUND(SUM([PY Total Scripts (copy)]),0)),1,LEN(STR(ROUND(SUM([PY Total Scripts (copy)]),0)))-9) + "","" + MID(STR(ROUND(SUM([PY Total Scripts (copy)]),0)),LEN(STR(ROUND(SUM([PY Total Scripts (copy)]),0)))-8, 3) + "","" + MID(STR(ROUND(SUM([PY Total Scripts (copy)]),0)),LEN(STR(ROUND(SUM([PY Total Scripts (copy)]),0)))-5, 3)+ "","" + MID(STR(ROUND(SUM([PY Total Scripts (copy)]),0)),LEN(STR(ROUND(SUM([PY Total Scripts (copy)]),0)))-2, 3) 
+        ELSEIF LEN(STR(ROUND(SUM([PY Total Scripts (copy)]), -3))) > 6
+        THEN ""$"" + LEFT(STR(SUM([PY Total Scripts (copy)])), LEN(STR(ROUND(SUM([PY Total Scripts (copy)]),0))) - 6) + "","" + LEFT(RIGHT(STR(ROUND(SUM([PY Total Scripts (copy)]),0)), 6),3) + "","" + RIGHT(STR(ROUND(SUM([PY Total Scripts (copy)]), 0)), 3)
+        ELSE ""$"" + LEFT(STR(ROUND(SUM([PY Total Scripts (copy)]), -3)), LEN(STR(ROUND(SUM([PY Total Scripts (copy)]), -3))) - 3) + "","" + RIGHT(STR(ROUND(SUM([PY Total Scripts (copy)]), 0)), 3)
+        END
+    WHEN ""Rx/PMPY"" THEN str(ROUND([Rx PMPY - Actual (CY) (copy)],1))
+END, ""N/A"")",,
+152,PY Members,real,,"//IF [Year Label (Executive Summary)]=""Prior Year"" AND DATEPART('month', [Filled Month])<=DATEPART('month',[Thru Date]) THEN 
+IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PYTD' THEN
+   [Act_Members]
+END",,
+173,PY Members (LOD),real,,"{ FIXED [Population], [FilledMonth], [Contract], [PBP]:AVG([CY Members (copy)])}",,
+319,PY Rebates PMPM (Actual),real,,"SUM(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Population_Members] END)})*3)",,
+226,PY Total AWP (Discount),real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Prior Year"" AND DATEPART('month', [FilledMonth])<=DATEPART('month',[ThruDate]) THEN
+IF [Exclude]=""N"" THEN [Act_AWP] END END",,
+205,PY Total Brand AWP,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Prior Year"" AND DATEPART('month', [FilledMonth])<=DATEPART('month',[ThruDate]) AND [GenericFlag]=""N"" THEN
+IF [Exclude]=""N"" THEN [Act_AWP] END END",,
+126,PY Total Brand Ingredient Cost,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Prior Year"" AND DATEPART('month', [FilledMonth])<=DATEPART('month',[ThruDate]) AND [GenericFlag]=""N"" THEN
+IF [Exclude]=""N"" THEN [Act_IngCost] END END",,
+177,PY Total Generic AWP,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Prior Year"" AND DATEPART('month', [FilledMonth])<=DATEPART('month',[ThruDate]) AND [GenericFlag]=""Y"" THEN
+IF [Exclude]=""N"" THEN [Act_AWP] END END",,
+160,PY Total Generic Ingredient Cost,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Prior Year"" AND DATEPART('month', [FilledMonth])<=DATEPART('month',[ThruDate]) AND [GenericFlag]=""Y"" THEN
+IF [Exclude]=""N"" THEN [Act_IngCost] END END",,
+138,PY Total Generic Scripts,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Prior Year"" AND DATEPART('month', [FilledMonth])<=DATEPART('month',[ThruDate]) AND [GenericFlag]=""Y"" THEN
+[Act_Claims] END",,
+195,PY Total Ingredient Cost,real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Prior Year"" AND DATEPART('month', [FilledMonth])<=DATEPART('month',[ThruDate]) THEN
+[Act_IngCost] END",,
+278,PY Total Ingredient Cost (Discount),real,,"IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Prior Year"" AND DATEPART('month', [FilledMonth])<=DATEPART('month',[ThruDate]) THEN
+IF [Exclude]=""N"" THEN [Act_IngCost] END END",,
+265,PY Total Scripts,real,,"//IF [Year Label (Executive Summary)]=""Prior Year"" AND DATEPART('month', [Filled Month])<=DATEPART('month',[Thru Date]) THEN
+//[Act Claims] END
+
+IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END = 'PYTD' THEN [Act_Claims] END",,
+341,Percent Difference,real,,ABS(([Ingredient Cost per Script after Rebates (copy)]-[Ingredient Cost per Selector after Rebates (copy)]))/[Ingredient Cost per Selector after Rebates (copy)],,
+92,Pharmacy ,integer,,IF LOWER([Pharmacy]) = 'x' THEN 1 END,,
+543,Pharmacy County,string,,"IFNULL([PharmacyCounty], 'UNKNOWN')",,
+564,Pharmacy County - Nonmasked,string,,,,
+563,Pharmacy State,string,,,,
+587,Pharmacy State-County,string,,[PharmacyState]+[PharmacyCounty],,
+494,Pharmacy Type Color,string,,"IF CONTAINS(UPPER([SpecialtyType]), ""SPECIALTY"") THEN ""Specialty"" ELSE ""Retail"" END",,
+212,Population,string,,,,
+288,Population Members,real,,,,
+330,Population Members (LOD),real,,"{FIXED  [Client], [Population], YEAR([Quarter]) : AVG([Population_Members])}
+
+//Membership is provided at a quarterly client level by population or contract/PBP.  
+//Avg/Min/Max would all provide same number.",,
+268,Population or PBP,string,,"IF [Parameters].[Parameter 1]=""Only Projected"" THEN [Population] ELSE [Contract] + "" "" + [PBP]+"""" END",,
+2,Postal Code,integer,,,,
+486,Prior Month Flag,boolean,,"IF ATTR(MONTH([FilledMonth])) = MAX(MONTH([FilledMonth])) - 1 THEN
+    TRUE
+END",,
+474,Prior Seleceted Year,integer,,[Parameters].[Parameter 5]-1,,
+19,Product ID,string,,,,
+0,Product Name,string,,,,
+12,Profit,real,,,,
+52,Profit %,real,,SUM([Profit])/SUM([Sales]),,1
+4,Profit (bin),integer,,[Profit],,
+18,Profit Bin Size,integer,,200,,
+7,Profit Ratio,real,,SUM([Profit])/SUM([Sales]),,1
+300,Projected Claims,real,,,,
+322,Projected Ingredient Cost,real,,,,
+296,Projected Members,real,,,,
+305,Projected Rebate MPM,real,,,,
+310,Projected Rebate Rx,real,,,,
+424,Projection AWP,real,,,,
+365,Projection Claims,real,,,,
+295,Projection Claims (LOD),real,,"{FIXED [Client],[Population],YEAR([Quarter]),[CORE]:AVG([Projection_Claims])}
+
+//Projection claims are provided at a yearly client level by population.  
+//Avg/Min/Max would all provide same number.",,
+364,Projection Claims Adj,real,,"[Projection_Claims]*DATEDIFF('day', DATE('1-1-' + STR(YEAR([AsOf]))), [AsOf])/365",,
+312,Projection Filter,boolean,,"IIF([Parameters].[Parameter 1]=""Only Projected"",TRUE,FALSE)",,
+349,Projection IngCost,real,,,,
+374,Projection IngCost Adj,real,,"[Projection_IngCost]*DATEDIFF('day', DATE('1-1-' + STR(YEAR([AsOf]))), [AsOf])/365",,
+389,Projection Members,real,,,,
+302,Projection Population Membership (LOD),real,,"{FIXED [Client],[Population],YEAR([Quarter]):AVG([Projection_Members])}
+
+//Projection membership is provided at a yearly client level by population.  
+//Avg/Min/Max would all provide same number.",,
+327,Projection Rebate PMPM (LOD),real,,"{FIXED [Client],[Population],YEAR([Quarter]):AVG([Projection_Rebate_PMPM])*AVG([Projection_Members])}
+
+//Projection Rebate PMPM is provided at a yearly client level by population.  
+//Avg/Min/Max would all provide same number.",,
+308,Projection Rebate by Claim (LOD),real,,"{FIXED [Client],[Population],YEAR([Quarter]):AVG([Projection_Rebate_Rx])}
+
+//Projection Rebate per Claim is provided at a yearly client level by population.  
+//Avg/Min/Max would all provide same number.",,
+282,Projection Rebate by Claim (LOD) (Weighted),real,,"{FIXED [Client],[Population],YEAR([Quarter]):AVG([Projected Rebate PMPM (LOD) (copy)])*SUM([Projected Membership (LOD) (copy 3)])}
+
+//Projection Rebate by Claim is multiplied by projected claims (for weighted average purposes).
+//This field should not be exposed on reporting because it's arbitrary without dividing by total projection claims.",,
+16,Quantity,integer,,,,
+332,Quarter,date,,,,
+530,Rank,integer,,"RANK(CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END)",,
+489,Rank (Pharmacy),integer,,RANK_UNIQUE(([Metric Selector (copy 2)])),,
+579,Rank - Geo,integer,,"RANK_UNIQUE(CASE [Parameters].[Parameter 6]
+    WHEN 'Total Claims' THEN SUM([Act_Claims])
+    WHEN 'Total Ingredient Cost' THEN SUM([Act_IngCost])
+    WHEN 'Ingredient Cost Per Claim' THEN SUM([Act_IngCost])/SUM([Act_Claims])
+    WHEN 'Discount %' THEN 1-(SUM([Act_IngCost])/SUM([Act_AWP]))
+    WHEN 'Generic Utilization Rate' THEN ZN(
+SUM(IF CONTAINS(UPPER([ClaimType]), 'GENERIC') THEN [Act_Claims] END)
+/
+SUM([Act_Claims])
+)
+END)",,
+559,Rank - Pharmacy,integer,,"RANK_UNIQUE(RUNNING_SUM([Metric Selector (copy)]), 'asc')",,
+309,Rebate PMPM (% Difference),real,,([Rebate per Claim (Actual) (copy)]-[Rebate PMPM (Actual) (copy)])/[Rebate PMPM (Actual) (copy)],,
+329,Rebate PMPM (% Difference) (Down),string,,"IIF([Rebate PMPM (% Difference) (Up Arrow) (copy)]<0, ""▼ ""+STR(ROUND([Rebate PMPM (% Difference) (Up Arrow) (copy)]*100,1))+""%"","""")",,
+328,Rebate PMPM (% Difference) (Up),string,,"IIF([Rebate PMPM (% Difference) (Up Arrow) (copy)]>=0, ""▲ ""+STR(ROUND([Rebate PMPM (% Difference) (Up Arrow) (copy)]*100,1))+""%"","""")",,
+339,Rebate PMPM (% Difference) (Up/Down),string,,"IF [Rebate PMPM (% Difference) (Up Arrow) (copy)] < 0
+THEN ""▲ "" + STR(ROUND(ABS([Rebate PMPM (% Difference) (Up Arrow) (copy)])*100,1)) + ""%""
+ELSEIF [Rebate PMPM (% Difference) (Up Arrow) (copy)] > 0
+THEN ""▼ "" + STR(ROUND(ABS([Rebate PMPM (% Difference) (Up Arrow) (copy)])*100,1))+""%""
+ELSE STR(ROUND([Rebate PMPM (% Difference) (Up Arrow) (copy)]*100,1))+""%""
+END",,
+325,Rebate PMPM (Actual),real,,SUM([Rebates])/SUM([Projected Membership (LOD) (copy 2)])/3,,
+323,Rebate PMPM (Projected),real,,"AVG([Projected Membership (LOD) (copy)])/AVG({FIXED [Client],[Population],YEAR([Quarter]):AVG([Projection_Members])}
+
+//Projection membership is provided at a yearly client level by population.  
+//Avg/Min/Max would all provide same number.)",,
+284,Rebate Year,integer,,YEAR([Quarter]),,
+291,Rebate per Claim (% Difference),real,,(SUM([Rebates])/SUM([Total_Claims])-[Rebate per Claim (copy)])/[Rebate per Claim (copy)],,
+281,Rebate per Claim (Actual),real,,SUM([Rebates])/SUM([Total_Claims]),,
+333,Rebate per Claim (Projected),real,,SUM([Projected Rebate Rx (LOD) (copy)])/SUM([Projected Membership (LOD) (copy 3)]),,
+326,Rebates PMPM (Up/Down),string,,"IF 
+(SUM(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Population_Members] END)})/
+(COUNTD(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Quarter] END))*3)-SUM(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Population_Members] END)})*3))/SUM(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Population_Members] END)})*3) < 0 
+THEN ""▼ "" + STR(ROUND(ABS((SUM(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Population_Members] END)})/
+(COUNTD(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Quarter] END))*3)-SUM(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Population_Members] END)})*3))/SUM(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Population_Members] END)})*3))*100,1))+""%"" 
+ELSEIF (SUM(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Population_Members] END)})/
+(COUNTD(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Quarter] END))*3)-SUM(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Population_Members] END)})*3))/SUM(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Population_Members] END)})*3) > 0 
+THEN ""▲ "" + STR(ROUND(ABS((SUM(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Population_Members] END)})/
+(COUNTD(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Quarter] END))*3)-SUM(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Population_Members] END)})*3))/SUM(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Population_Members] END)})*3)*100),1))+""%"" 
+ELSE STR(ROUND((SUM(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Population_Members] END)})/
+(COUNTD(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Quarter] END))*3)-SUM(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Population_Members] END)})*3))/SUM(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Population_Members] END)})*3)*100,1))+""%"" 
+END",,
+304,Rebates PMPM Difference,real,,"(SUM(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Population_Members] END)})/
+(COUNTD(IF IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END = 'Current Year' THEN [Quarter] END))*3)-SUM(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Population_Members] END)})*3))/SUM(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Rebates] END)/
+(SUM({FIXED [Client],[Population], IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END, [Quarter]: AVG(IF IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END = 'PYTD' THEN [Population_Members] END)})*3)",,
+297,Rebates PMPM YTD,real,,[Rebate per Claim (Actual) (copy)],,
+313,Rebates Per Selection (Actual),real,,"IF([Parameters].[Parameter 3]=""per Script"") 
+THEN SUM([Rebates])/SUM([Total_Claims]) //if per script, divide total rebates by claims
+ELSE (SUM([Rebates])/(SUM([Projected Membership (LOD) (copy 2)])*3)) //if PMPM, divide total rebates by membership.  Divide by 3 for monthly amount.
+END",,
+306,Rebates Per Selection (Projected),real,,"IF([Parameters].[Parameter 3]=""per Script"") 
+THEN SUM([Projected Rebate Rx (LOD) (copy)])/SUM([Projected Membership (LOD) (copy 3)])
+ELSE [Rebate PMPM (Actual) (copy)]
+END",,
+101,Rebates by Contract ,integer,,"IF [Rebates by Contract] = ""X"" THEN 1 ELSE 0 END",,
+90,Rebates by Population ,integer,,"IF [Rebates by Population] = ""X"" THEN 1 ELSE 0 END",,
+150,Release,string,,"""Q22016""",,
+3,Row ID,integer,,,,
+14,Sales,real,,,,
+560,Scripts Filled in Mbr County,real,,IF [MemberCounty] = [PharmacyCounty] Then [Act_Claims] END,,
+585,Scripts Filled in Mbr County Color,string,,IF [MemberCounty] = [PharmacyCounty] Then 'True' ELSE 'False' END,,
+549,Scripts Filled in Non-Mbr County,real,,IF [PharmacyState] <> [MemberState] THEN [Act_Claims] END,,
+149,Show Chart,boolean,,MIN([FilledYear])-MAX([FilledYear])>0,,
+158,Sk Id,string,,,,
+520,Span,integer,,1,,1
+198,Span Data,integer,,1,,1
+95,Specialty ,integer,,IF LOWER([Specialty]) = 'x' THEN 1 END,,
+466,Specialty % Label,real,,"CASE [Parameters].[Parameter 4]
+ WHEN 'Specialty%/TC' THEN CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END
+END",,
+497,Specialty AWP,real,,IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END,,
+471,Specialty Claims,real,,IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END,,
+480,Specialty Drug % of Total Spend,real,,"SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) 
+/ 
+SUM({FIXED IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END, [Client], [Contract], [PBP], [FilledMonth] : SUM([Act_IngCost]) })",,
+469,Specialty Ing Cost,real,,IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END,,
+498,Specialty Pharmacy % of Spend,real,,"ZN(
+SUM(IF CONTAINS([SpecialtyType], ""SPECIALTY"") THEN [Act_IngCost] END)
+/
+SUM([Act_IngCost])
+)",,
+475,SpecialtyType,string,,,,
+6,State,string,,,,
+120,Table Axis - Min,real,,"ABS(WINDOW_MIN(
+(ZN([Multiple Measure Formats (copy)]) - LOOKUP(ZN([Multiple Measure Formats (copy)]), -1)) / ABS(LOOKUP(ZN([Multiple Measure Formats (copy)]), -1))
+))
+*1.1",,
+371,Test - Actual AWP,real,,SUM([Act_AWP]) - SUM([Claims - Actuals (Monthly) (copy)].[Act_AWP]),,1
+402,Test - Actual Claims Difference,real,,SUM([Act_Claims]) - SUM([Claims - Actuals (Monthly) (copy)].[Act_Claims]),,1
+348,Test - Actual IngCost,real,,SUM([Act_IngCost]) - SUM([Claims - Actuals (Monthly) (copy)].[Act_IngCost]),,1
+478,Testing - AWP,real,,SUM([Act_AWP]) - SUM([Claims - Actuals (Monthly) (copy)].[Act_AWP]),,1
+519,Testing - Claims,real,,SUM([Act_Claims]) - SUM([Claims - Actuals (Monthly) (copy)].[Act_Claims]),,1
+517,Testing - Ing Cost,real,,SUM([Act_IngCost]) - SUM([Claims - Actuals (Monthly) (copy)].[Act_IngCost]),,1
+535,Testing - Ingredient Cost,real,,SUM([Act_IngCost]) - SUM([Claims - Actuals (Monthly) (copy)].[Act_IngCost]),,1
+249,Therapy Class,string,,,,
+208,Thru Date,date,,,,
+479,ThruDate,date,,,,
+496,ThruDate (Months),date,,"DATE(DATETRUNC('month', [ThruDate]))",,
+316,Time Period,string,,"IF [Parameters].[Period Selector (Trends) (copy)]=""quarter"" 
+THEN ""Q""+DATENAME('quarter',[Quarter])+ "" "" + DATENAME('year',[Quarter])
+ELSE DATENAME('year',[Quarter]) 
+END
+
+//Show quarterly or yearly aggregated data based on dropdown (parameter) selection",,
+141,Time Period Label,string,,"CASE[Parameters].[% of All Drugs (copy 2)]
+    WHEN ""month"" THEN DATENAME(""month"",[FilledMonth])
+    WHEN ""quarter"" THEN ""Q""+DATENAME(""quarter"",[FilledMonth])
+END",,
+228,Time Period Label - Trends YoY,string,,"CASE[Parameters].[% of All Drugs (copy 2)]
+    WHEN ""month"" THEN LEFT(DATENAME(""month"",[FilledMonth]),1)
+    WHEN ""quarter"" THEN ""Q"" + DATENAME(""quarter"",[FilledMonth])
+END",,
+575,Top 5 Rank,string,,"If RANK(CASE [Parameters].[Parameter 6]
+    WHEN 'Total Claims' THEN SUM([Act_Claims])
+    WHEN 'Total Ingredient Cost' THEN SUM([Act_IngCost])
+    WHEN 'Ingredient Cost Per Claim' THEN SUM([Act_IngCost])/SUM([Act_Claims])
+    WHEN 'Discount %' THEN 1-(SUM([Act_IngCost])/SUM([Act_AWP]))
+    WHEN 'Generic Utilization Rate' THEN ZN(
+SUM(IF CONTAINS(UPPER([ClaimType]), 'GENERIC') THEN [Act_Claims] END)
+/
+SUM([Act_Claims])
+)
+END) <= 5 Then 'Top 5' Else 'Not Top 5' END",,
+17,Top Customers,integer,,5,,
+259,Total Claims YTD (Down),string,,"IF (SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])<0 THEN ""▼ "" + STR(ROUND((SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])*100,1))+""%"" END",,
+112,Total Claims YTD (Up),string,,"IF (SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])>=0 THEN ""▲ "" + STR(ROUND((SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])*100,1))+""%"" END",,
+229,Total Claims YTD (Up/Down),string,,"IF (SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])>=0 
+THEN ""▲ "" + STR(ROUND((SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])*100,1))+""%"" 
+ELSEIF (SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])<0 
+THEN ""▼ "" + STR(ROUND(ABS((SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])*100),1))+""%""
+ELSE STR(ROUND((SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])*100,1))+""%""
+END",,
+197,Total Claims YTD (YoY),real,,(SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)]),,
+516,Total Drug Cost,real,,TOTAL(SUM([Act_IngCost])),,
+320,Total Ingredient Cost,real,,,,
+235,Total Ingredient Cost YTD (YoY),real,,(SUM([CY Total Scripts (copy 3)])-SUM([PY Total Scripts (copy)]))/SUM([PY Total Scripts (copy)]),,
+209,Total Ingredient Costs YTD (Down),string,,"IF [Total Claims YTD (YoY) (copy)]<0 THEN ""▼ "" + STR(ROUND([Total Claims YTD (YoY) (copy)]*100,1))+""%"" END",,
+155,Total Ingredient Costs YTD (Up),string,,"IF [Total Claims YTD (YoY) (copy)]>=0 THEN ""▲ "" + STR(ROUND([Total Claims YTD (YoY) (copy)]*100,1))+""%"" END",,
+143,Total Ingredient Costs YTD (Up/Down),string,,"IF [Total Claims YTD (YoY) (copy)] > 0 
+THEN ""▲ "" + STR(ROUND([Total Claims YTD (YoY) (copy)]*100,1)) + ""%"" 
+ELSEIF [Total Claims YTD (YoY) (copy)] < 0 
+THEN ""▼ "" + STR(ROUND(ABS([Total Claims YTD (YoY) (copy)]*100),1)) + ""%"" 
+ELSE STR(ROUND(ABS([Total Claims YTD (YoY) (copy)]*100),1)) + ""%"" 
+END",,
+218,Total Membership YTD (Down),string,,"IF [Total Ingredient Cost YTD (YoY) (copy)]<0 THEN ""▼ "" + STR(ROUND([Total Ingredient Cost YTD (YoY) (copy)]*100,1))+""%"" END",,
+223,Total Membership YTD (Up),string,,"IF [Total Ingredient Cost YTD (YoY) (copy)]>=0 THEN ""▲ "" + STR(ROUND([Total Ingredient Cost YTD (YoY) (copy)]*100,1))+""%"" END",,
+204,Total Membership YTD (Up/Down),string,,"IF [Total Ingredient Cost YTD (YoY) (copy)] > 0 
+THEN ""▲ "" + STR(ROUND([Total Ingredient Cost YTD (YoY) (copy)]*100,1))+""%""
+ELSEIF [Total Ingredient Cost YTD (YoY) (copy)] < 0 
+THEN ""▼ "" + STR(ROUND(ABS([Total Ingredient Cost YTD (YoY) (copy)]*100),1))+""%"" 
+ELSE STR(ROUND([Total Ingredient Cost YTD (YoY) (copy)]*100,1))+""%"" 
+END",,
+236,Total Membership YTD (YoY) ,real,,([CY Members (LOD) (copy)]-[Avg CY Members (LOD) (copy)])/[Avg CY Members (LOD) (copy)],,
+100,Trends ,integer,,"IF [Trends] = ""X"" THEN 1 ELSE 0 END",,
+93,Utilization ,integer,,"IF [Utilization] = ""X"" THEN 1 ELSE 0 END",,
+314,Valid Population,string,,,,
+321,Valid Population with Alignment,string,,IF Client = 'Alignment Healthcare' THEN 'Y' ELSE [ValidPopulation] END,,
+225,YTD Difference,real,,"CASE [Parameters].[Parameter 2]
+WHEN ""Total Claims"" THEN
+(SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])
+WHEN ""Rx/PMPY"" THEN
+([Rx PMPY - Actual (for trends) (copy)]-[Rx PMPY - Actual (CY) (copy)])/[Rx PMPY - Actual (CY) (copy)]
+WHEN ""IC/Rx"" THEN
+([PY Ingredient Cost per Claim (copy)]-SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)]))/SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)])
+WHEN ""IC/PMPM"" THEN
+([Rx PMPY - Actual (CY) (copy 2)]-[CY IC PMPM (copy)])/[CY IC PMPM (copy)]
+WHEN ""IC Total$"" THEN
+(SUM([CY Total Scripts (copy 3)])-SUM([PY Total Scripts (copy)]))/SUM([PY Total Scripts (copy)])
+WHEN ""Discount"" THEN
+(SUM([CY Total AWP (copy 2)])-SUM([CY Total Ingredient Cost (copy)]))/SUM([CY Total AWP (copy 2)])-(SUM([PY Total AWP (copy 2)])-SUM([PY Total Ingredient Cost (copy 2)]))/SUM([PY Total AWP (copy 2)])
+WHEN ""GUR"" THEN
+SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+[Act_Claims] END)/SUM([Multiple Measure Formats (copy 2)])-[PY Claims PMPY (copy)]
+END",,
+164,YTD Difference - PPY vs PY,real,,"CASE [Parameters].[Parameter 2]
+WHEN ""Total Claims"" THEN
+(SUM([CY Total Scripts (copy)]) - [PPY Total Ingredient Cost (copy)])/[PPY Total Ingredient Cost (copy)]
+WHEN ""Rx/PMPY"" THEN
+([Rx PMPY - Actual (CY) (copy)]-[PY Claims PMPY (copy 2)])/[PY Claims PMPY (copy 2)]
+WHEN ""IC/Rx"" THEN
+(SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)])-[PY Ingredient Cost per Claim (copy 2)])/[PY Ingredient Cost per Claim (copy 2)]
+WHEN ""IC/PMPM"" THEN
+([CY IC PMPM (copy)]-[PY Ingredient Cost PMPM (copy)])/[PY Ingredient Cost PMPM (copy)]
+WHEN ""IC Total$"" THEN
+(SUM([PY Total Scripts (copy)])-[PY Total Ingredient Cost (copy 3)])/[PY Total Ingredient Cost (copy 3)]
+WHEN ""Discount"" THEN
+(SUM([PY Total AWP (copy 2)])-SUM([PY Total Ingredient Cost (copy 2)]))/SUM([PY Total AWP (copy 2)])-[PY Discount % (copy)]
+WHEN ""GUR"" THEN
+([PY Claims PMPY (copy)]-[PY Generic Utilization Rate (copy)])
+END",,
+224,YTD Difference w/ Arrows,string,,"IF CASE [Parameters].[Parameter 2]
+WHEN ""Total Claims"" THEN
+(SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])
+WHEN ""Rx/PMPY"" THEN
+([Rx PMPY - Actual (for trends) (copy)]-[Rx PMPY - Actual (CY) (copy)])/[Rx PMPY - Actual (CY) (copy)]
+WHEN ""IC/Rx"" THEN
+([PY Ingredient Cost per Claim (copy)]-SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)]))/SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)])
+WHEN ""IC/PMPM"" THEN
+([Rx PMPY - Actual (CY) (copy 2)]-[CY IC PMPM (copy)])/[CY IC PMPM (copy)]
+WHEN ""IC Total$"" THEN
+(SUM([CY Total Scripts (copy 3)])-SUM([PY Total Scripts (copy)]))/SUM([PY Total Scripts (copy)])
+WHEN ""Discount"" THEN
+(SUM([CY Total AWP (copy 2)])-SUM([CY Total Ingredient Cost (copy)]))/SUM([CY Total AWP (copy 2)])-(SUM([PY Total AWP (copy 2)])-SUM([PY Total Ingredient Cost (copy 2)]))/SUM([PY Total AWP (copy 2)])
+WHEN ""GUR"" THEN
+SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+[Act_Claims] END)/SUM([Multiple Measure Formats (copy 2)])-[PY Claims PMPY (copy)]
+END > 0 
+THEN ""▲"" + STR(ROUND(100*CASE [Parameters].[Parameter 2]
+WHEN ""Total Claims"" THEN
+(SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])
+WHEN ""Rx/PMPY"" THEN
+([Rx PMPY - Actual (for trends) (copy)]-[Rx PMPY - Actual (CY) (copy)])/[Rx PMPY - Actual (CY) (copy)]
+WHEN ""IC/Rx"" THEN
+([PY Ingredient Cost per Claim (copy)]-SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)]))/SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)])
+WHEN ""IC/PMPM"" THEN
+([Rx PMPY - Actual (CY) (copy 2)]-[CY IC PMPM (copy)])/[CY IC PMPM (copy)]
+WHEN ""IC Total$"" THEN
+(SUM([CY Total Scripts (copy 3)])-SUM([PY Total Scripts (copy)]))/SUM([PY Total Scripts (copy)])
+WHEN ""Discount"" THEN
+(SUM([CY Total AWP (copy 2)])-SUM([CY Total Ingredient Cost (copy)]))/SUM([CY Total AWP (copy 2)])-(SUM([PY Total AWP (copy 2)])-SUM([PY Total Ingredient Cost (copy 2)]))/SUM([PY Total AWP (copy 2)])
+WHEN ""GUR"" THEN
+SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+[Act_Claims] END)/SUM([Multiple Measure Formats (copy 2)])-[PY Claims PMPY (copy)]
+END,1)) + ""%"" 
+ELSEIF CASE [Parameters].[Parameter 2]
+WHEN ""Total Claims"" THEN
+(SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])
+WHEN ""Rx/PMPY"" THEN
+([Rx PMPY - Actual (for trends) (copy)]-[Rx PMPY - Actual (CY) (copy)])/[Rx PMPY - Actual (CY) (copy)]
+WHEN ""IC/Rx"" THEN
+([PY Ingredient Cost per Claim (copy)]-SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)]))/SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)])
+WHEN ""IC/PMPM"" THEN
+([Rx PMPY - Actual (CY) (copy 2)]-[CY IC PMPM (copy)])/[CY IC PMPM (copy)]
+WHEN ""IC Total$"" THEN
+(SUM([CY Total Scripts (copy 3)])-SUM([PY Total Scripts (copy)]))/SUM([PY Total Scripts (copy)])
+WHEN ""Discount"" THEN
+(SUM([CY Total AWP (copy 2)])-SUM([CY Total Ingredient Cost (copy)]))/SUM([CY Total AWP (copy 2)])-(SUM([PY Total AWP (copy 2)])-SUM([PY Total Ingredient Cost (copy 2)]))/SUM([PY Total AWP (copy 2)])
+WHEN ""GUR"" THEN
+SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+[Act_Claims] END)/SUM([Multiple Measure Formats (copy 2)])-[PY Claims PMPY (copy)]
+END < 0 THEN ""▼"" + STR(ROUND(100*abs(CASE [Parameters].[Parameter 2]
+WHEN ""Total Claims"" THEN
+(SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])
+WHEN ""Rx/PMPY"" THEN
+([Rx PMPY - Actual (for trends) (copy)]-[Rx PMPY - Actual (CY) (copy)])/[Rx PMPY - Actual (CY) (copy)]
+WHEN ""IC/Rx"" THEN
+([PY Ingredient Cost per Claim (copy)]-SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)]))/SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)])
+WHEN ""IC/PMPM"" THEN
+([Rx PMPY - Actual (CY) (copy 2)]-[CY IC PMPM (copy)])/[CY IC PMPM (copy)]
+WHEN ""IC Total$"" THEN
+(SUM([CY Total Scripts (copy 3)])-SUM([PY Total Scripts (copy)]))/SUM([PY Total Scripts (copy)])
+WHEN ""Discount"" THEN
+(SUM([CY Total AWP (copy 2)])-SUM([CY Total Ingredient Cost (copy)]))/SUM([CY Total AWP (copy 2)])-(SUM([PY Total AWP (copy 2)])-SUM([PY Total Ingredient Cost (copy 2)]))/SUM([PY Total AWP (copy 2)])
+WHEN ""GUR"" THEN
+SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+[Act_Claims] END)/SUM([Multiple Measure Formats (copy 2)])-[PY Claims PMPY (copy)]
+END),1)) + ""%"" 
+ELSE STR(ROUND(100*CASE [Parameters].[Parameter 2]
+WHEN ""Total Claims"" THEN
+(SUM([Multiple Measure Formats (copy 2)])-SUM([CY Total Scripts (copy)]))/SUM([CY Total Scripts (copy)])
+WHEN ""Rx/PMPY"" THEN
+([Rx PMPY - Actual (for trends) (copy)]-[Rx PMPY - Actual (CY) (copy)])/[Rx PMPY - Actual (CY) (copy)]
+WHEN ""IC/Rx"" THEN
+([PY Ingredient Cost per Claim (copy)]-SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)]))/SUM([PY Total Scripts (copy)])/SUM([CY Total Scripts (copy)])
+WHEN ""IC/PMPM"" THEN
+([Rx PMPY - Actual (CY) (copy 2)]-[CY IC PMPM (copy)])/[CY IC PMPM (copy)]
+WHEN ""IC Total$"" THEN
+(SUM([CY Total Scripts (copy 3)])-SUM([PY Total Scripts (copy)]))/SUM([PY Total Scripts (copy)])
+WHEN ""Discount"" THEN
+(SUM([CY Total AWP (copy 2)])-SUM([CY Total Ingredient Cost (copy)]))/SUM([CY Total AWP (copy 2)])-(SUM([PY Total AWP (copy 2)])-SUM([PY Total Ingredient Cost (copy 2)]))/SUM([PY Total AWP (copy 2)])
+WHEN ""GUR"" THEN
+SUM(IF IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END=""Current Year"" AND [GenericFlag]=""Y"" THEN
+[Act_Claims] END)/SUM([Multiple Measure Formats (copy 2)])-[PY Claims PMPY (copy)]
+END,1)) + ""%"" 
+END",,
+521,YTD Filter,string,,"IF MONTH([FilledMonth]) <= {FIXED 1 : MAX(IF YEAR([FilledMonth]) = [Parameters].[Parameter 5] THEN MONTH([FilledMonth]) END) } 
+THEN 'Show' 
+ELSE 'Hide' 
+END",,
+529,YTD Period Label,string,,"IF MAX(YEAR([FilledYear])) = MAX(YEAR([ThruDate])) THEN 
+    ""YTD "" + STR([Parameters].[Parameter 5]-1) +
+    "" to YTD "" + STR([Parameters].[Parameter 5])
+ELSE
+    STR([Parameters].[Parameter 5]-1) + "" to "" + STR([Parameters].[Parameter 5])
+END",,
+103,YTD Year,integer,,"IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) 
+AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN YEAR([ThruDate])
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN YEAR([ThruDate])-1
+ELSE YEAR([ThruDate])-2
+END",,
+227,Year - 1 Year Prior,string,,STR(MAX(YEAR([ThruDate]))-1),,
+245,Year - 1 Year Prior ((vs)),string,,"IF MAX({FIXED [Client] : COUNTD(YEAR([FilledYear]))}) > 1 THEN
+    ""(vs. "" + STR(MAX(YEAR([ThruDate]))-1) + "")""
+END",,
+270,Year - 1 Year Prior (vs),string,,"IF [Total Ingredient Costs YTD (Up) (copy 3)] <> """" THEN
+    ""vs. "" + STR(MAX(YEAR([ThruDate]))-1)
+ELSE """"
+END",,
+180,Year - 2 Years Prior,string,,"IF MAX({FIXED [Client] : COUNTD(YEAR([FilledYear]))}) > 2 THEN
+    ""vs. "" + STR(MAX(YEAR([ThruDate]))-2)
+END",,
+211,Year Label (Executive Summary),string,,"IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END",,1
+114,Year Label Trend Diff,string,,"IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END",,1
+144,YoY Calculation,real,,"IF [Parameters].[Parameter 2]=""Discount"" OR [Parameters].[Parameter 2]=""GUR"" THEN 
+    ZN([Multiple Measure Formats (copy)]) - LOOKUP(ZN([Multiple Measure Formats (copy)]), -1)
+END
+//ELSE
+//    IF attr(YEAR([Filled Month])) =  MAX({ FIXED [Span Data] : MAX(YEAR([Filled Month])) }) THEN
+//        (ZN([Metric Selector]) - LOOKUP(ZN([Metric Selector]), -1)) / ABS(LOOKUP(ZN([Metric Selector]), -1))
+//    END
+//END",,
+147,YoY Trend,real,,"IF [Parameters].[Parameter 2]=""Discount"" OR [Parameters].[Parameter 2]=""GUR"" THEN 
+    
+
+    IF ATTR([Year Label (copy)]) = 'Current Year' THEN
+        IF MAX(INT(STR(YEAR([FilledMonth])))) =  MAX({ FIXED 1 : MAX(YEAR([FilledMonth])) }) THEN
+            ZN([Multiple Measure Formats (copy)]) - LOOKUP(ZN([Multiple Measure Formats (copy)]), -1)
+        END
+    ELSEIF ATTR([Year Label (copy)]) = 'Prior Year' THEN
+        IF MAX(INT(STR(YEAR([FilledMonth])))) =  MAX({ FIXED 1 : MAX(YEAR([FilledMonth])) }) - 1 
+            AND MAX(MONTH([FilledMonth])) > MAX({ FIXED 1 : MONTH(MAX([FilledMonth])) }) THEN 
+                ZN([Multiple Measure Formats (copy)]) - LOOKUP(ZN([Multiple Measure Formats (copy)]), -1)
+        END
+    END
+ELSE
+    IF ATTR([Year Label (copy)]) = 'Current Year' THEN
+        IF MAX(INT(STR(YEAR([FilledMonth])))) =  MAX({ FIXED 1 : MAX(YEAR([FilledMonth])) }) THEN
+            (ZN([Multiple Measure Formats (copy)]) - LOOKUP(ZN([Multiple Measure Formats (copy)]), -1)) / ABS(LOOKUP(ZN([Multiple Measure Formats (copy)]), -1))
+        END
+    ELSEIF ATTR([Year Label (copy)]) = 'Prior Year' THEN
+        IF MAX(INT(STR(YEAR([FilledMonth])))) =  MAX({ FIXED 1 : MAX(YEAR([FilledMonth])) }) - 1 
+            AND MAX(MONTH([FilledMonth])) > MAX({ FIXED 1 : MONTH(MAX([FilledMonth])) }) THEN
+                (ZN([Multiple Measure Formats (copy)]) - LOOKUP(ZN([Multiple Measure Formats (copy)]), -1)) / ABS(LOOKUP(ZN([Multiple Measure Formats (copy)]), -1))
+        END
+    END
+END",,
+324,by Year,string,,"""year""",,
+301,sk_id,string,,,,
+537,$ Decimal Label,real,,"CASE [Parameters].[Parameter 6]
+    WHEN 'Ingredient Cost Per Claim' THEN CASE [Parameters].[Parameter 6]
+    WHEN 'Total Claims' THEN SUM([Act_Claims])
+    WHEN 'Total Ingredient Cost' THEN SUM([Act_IngCost])
+    WHEN 'Ingredient Cost Per Claim' THEN SUM([Act_IngCost])/SUM([Act_Claims])
+    WHEN 'Discount %' THEN 1-(SUM([Act_IngCost])/SUM([Act_AWP]))
+    WHEN 'Generic Utilization Rate' THEN ZN(
+SUM(IF CONTAINS(UPPER([ClaimType]), 'GENERIC') THEN [Act_Claims] END)
+/
+SUM([Act_Claims])
+)
+END
+END",1.0,
+116,$ Decimal Label,real,,"CASE [Parameters].[Parameter 2]
+    WHEN ""IC/Rx"" THEN SUM([Act_IngCost])/SUM([Act_Claims])
+    WHEN ""IC/PMPM"" THEN [Rx PMPY - Actual (for trends) (copy 2)]
+END",1.0,
+483,$ Decimal Label,real,,"CASE [Parameters].[Parameter 4]
+    WHEN 'Ingredient Cost PMPM' THEN CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END
+    WHEN 'Ingredient Cost PC' THEN CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END
+END",1.0,
+176,$ Integer Label,real,,"CASE [Parameters].[Parameter 2]
+    WHEN ""IC Total$"" THEN [Act_IngCost]
+END",1.0,
+562,$ Integer Label,real,,"CASE [Parameters].[Parameter 6]
+    WHEN 'Total Ingredient Cost' THEN CASE [Parameters].[Parameter 6]
+    WHEN 'Total Claims' THEN SUM([Act_Claims])
+    WHEN 'Total Ingredient Cost' THEN SUM([Act_IngCost])
+    WHEN 'Ingredient Cost Per Claim' THEN SUM([Act_IngCost])/SUM([Act_Claims])
+    WHEN 'Discount %' THEN 1-(SUM([Act_IngCost])/SUM([Act_AWP]))
+    WHEN 'Generic Utilization Rate' THEN ZN(
+SUM(IF CONTAINS(UPPER([ClaimType]), 'GENERIC') THEN [Act_Claims] END)
+/
+SUM([Act_Claims])
+)
+END
+END",1.0,
+77,% Returned,real,,"SUM(
+    IF [Returned]='Yes'
+    THEN [Sales]
+END)/SUM([Sales])",1.0,
+43,% Returned,real,,"COUNT(
+    IF [Returned]='Yes'
+    THEN [Sales]
+END)/SUM([Sales])",1.0,
+500,Claims PMPY,real,,"SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})",1.0,
+202,Claims PMPY,real,,"SUM([Act_Claims])
+/
+SUM({ FIXED [Population], [Contract], [PBP], [FilledMonth]:AVG([Act_Members])}) * 12",1.0,
+148,Client TF,string,,"IF [Parameters].[Client Parameter] = 'All'
+THEN ""TRUE""
+ELSEIF [Parameters].[Client Parameter]=[Client]
+THEN ""TRUE""
+END",1.0,
+336,Client TF,string,,"IF [Parameters].[Client Parameter] = 'All'
+THEN ""TRUE""
+ELSEIF [Parameters].[Client Parameter] = [Client]
+THEN ""TRUE""
+END",1.0,
+412,Client TF,string,,"IF [Parameters].[Client Parameter] = 'All'
+THEN 'TRUE'
+ELSEIF [Client] = [Parameters].[Client Parameter]
+THEN 'TRUE'
+END",1.0,
+118,Decimal Label,real,,"CASE [Parameters].[Parameter 2]
+    WHEN ""Rx/PMPY"" THEN [Rx PMPY - Actual (copy 4)]
+END",1.0,
+504,Decimal Label,real,,"CASE [Parameters].[Parameter 4]
+    WHEN 'Claims PMPY' THEN CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END
+END",1.0,
+571,Discount %,real,,1-(SUM([Act_IngCost])/SUM([Act_AWP])),1.0,
+473,Discount %,real,,(SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END),1.0,
+127,Discount %,real,,"(SUM(IF [Exclude]=""N"" THEN [Act_AWP] END)-SUM(IF [Exclude]=""N"" THEN [Act_IngCost] END))/SUM(IF [Exclude]=""N"" THEN [Act_AWP] END)",1.0,
+377,Discount AWP,real,,IF [Exclude] = 'N' THEN [Act_AWP] END,1.0,
+139,Discount AWP,real,,"IF [Exclude]=""N"" THEN [Act_AWP] END",1.0,
+285,Executive Summary Filter,string,,"IF [Parameters].[Parameter 1]=""All Populations"" THEN ""Y"" ELSE [ValidPopulation] END",1.0,
+243,Executive Summary Filter,string,,"IF [Parameters].[Parameter 1]=""All Populations"" THEN ""Y"" 
+ELSE  
+    IF LOWER([Client]) = 'alignment healthcare' 
+        THEN 'Y'
+        ELSE [ExecSummary]
+    END
+END",1.0,
+463,Generic Claims,real,,"ZN(IF [ClaimType] <> ""Brand"" THEN [Act_Claims] END)",1.0,
+248,Generic Claims,real,,"IIF([GenericFlag]=""Y"", [Act_Claims], 0)",1.0,
+534,Generic Utilization Rate,real,,"ZN(
+SUM(IF CONTAINS(UPPER([ClaimType]), 'GENERIC') THEN [Act_Claims] END)
+/
+SUM([Act_Claims])
+)",1.0,
+512,Generic Utilization Rate,real,,"SUM(ZN(IF [ClaimType] <> ""Brand"" THEN [Act_Claims] END))/SUM([Act_Claims])",1.0,
+153,Generic Utilization Rate,real,,SUM([Act Claims (copy)])/SUM([Act_Claims]),1.0,
+470,Ingredient Cost PMPM,real,,"SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END",1.0,
+272,Ingredient Cost PMPM,real,,"SUM([Act_IngCost])/(SUM({ FIXED [Population], [Contract], [PBP], [FilledMonth]:AVG([Act_Members])}) / IF [Parameters].[% of All Drugs (copy 2)]=""quarter"" THEN 3 ELSE 1 END)
+/ IF [Parameters].[% of All Drugs (copy 2)]=""quarter"" THEN 3 ELSE 1 END",1.0,
+522,Ingredient Cost Per Claim,real,,SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END),1.0,
+554,Ingredient Cost Per Claim,real,,SUM([Act_IngCost])/SUM([Act_Claims]),1.0,1
+502,Integer Label,real,,"CASE [Parameters].[Parameter 4]
+    WHEN 'Total Claims' THEN CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END
+END",1.0,
+274,Integer Label,real,,"CASE [Parameters].[Parameter 2]
+    WHEN ""Total Claims"" THEN SUM([Act_Claims])
+END",1.0,
+544,Integer Label,real,,"CASE [Parameters].[Parameter 6]
+    WHEN 'Total Claims' THEN CASE [Parameters].[Parameter 6]
+    WHEN 'Total Claims' THEN SUM([Act_Claims])
+    WHEN 'Total Ingredient Cost' THEN SUM([Act_IngCost])
+    WHEN 'Ingredient Cost Per Claim' THEN SUM([Act_IngCost])/SUM([Act_Claims])
+    WHEN 'Discount %' THEN 1-(SUM([Act_IngCost])/SUM([Act_AWP]))
+    WHEN 'Generic Utilization Rate' THEN ZN(
+SUM(IF CONTAINS(UPPER([ClaimType]), 'GENERIC') THEN [Act_Claims] END)
+/
+SUM([Act_Claims])
+)
+END
+END",1.0,
+267,Metric Selector,real,,"CASE [Parameters].[Parameter 2]
+    WHEN ""IC/Rx"" THEN SUM([Act_IngCost])/SUM([Act_Claims])
+    WHEN ""IC/PMPM"" THEN [Rx PMPY - Actual (for trends) (copy 2)]
+    WHEN ""IC Total$"" THEN SUM([Act_IngCost])
+    WHEN ""Total Claims"" THEN SUM([Act_Claims])
+    WHEN ""Rx/PMPY"" THEN [Rx PMPY - Actual (copy 4)]
+    WHEN ""Discount"" THEN [Ingredient Cost per Claim (copy)]
+    WHEN ""GUR"" THEN SUM([Act Claims (copy)])/SUM([Act_Claims])
+END",1.0,
+505,Metric Selector,real,,"CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END",1.0,
+359,Per Member Per Month,string,,"""IC PMPM""",1.0,
+342,Per Member Per Month,string,,"""per Member""",1.0,
+271,Percentage Label,real,,"CASE [Parameters].[Parameter 2]
+    WHEN ""Discount"" THEN [Ingredient Cost per Claim (copy)]
+    WHEN ""GUR"" THEN SUM([Act Claims (copy)])/SUM([Act_Claims])
+END",1.0,
+518,Percentage Label,real,,"CASE [Parameters].[Parameter 4]
+    WHEN 'Discount %' THEN CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END
+    WHEN 'Generic Utilization Rate' THEN CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END
+    WHEN 'Drug%/TC' THEN CASE [Parameters].[Parameter 4]
+    WHEN 'Total Ingredient Cost' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)
+    WHEN 'Ingredient Cost PMPM' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END) / MAX(MONTH([FilledMonth]))
+/ 
+[Membership (LOD) (copy)]
+//SUM([Membership (LOD)])
+//IF MAX(YEAR([FilledMonth])) = [Year View] THEN [CY Avg Membership (LOD)] ELSE [PY Avg Membership (LOD)] END
+    WHEN 'Discount %' THEN (SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)-SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)) / SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_AWP] END)
+    WHEN 'Specialty%/TC' THEN [Specialty % of Total Spend (copy)]
+    WHEN 'Total Claims' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+    WHEN 'Claims PMPY' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+/ 
+SUM({FIXED [Client], [Contract], [PBP], [FilledMonth] : AVG([Act_Members])})
+    WHEN 'Ingredient Cost PC' THEN SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_IngCost] END)/ SUM(IF UPPER([DrugType]) = 'SPECIALTY' THEN [Act_Claims] END)
+END
+END",1.0,
+79,Return $,real,,"SUM(
+    IF [Returned]='Yes'
+    THEN [Sales]
+END)",1.0,
+45,Return $,integer,,"COUNT(
+    IF [Returned]='Yes'
+    THEN [Sales]
+END)",1.0,
+581,Total Claims,real,,{ FIXED [CORE] : SUM([Act_Claims])},1.0,
+287,Total Claims,real,,,1.0,
+122,Total Claims,string,,"""Total Claims""",1.0,1
+303,YTD Flag,string,,"IF YEAR([Quarter]) = YEAR([ThruDate]) AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'YTD'
+ELSEIF YEAR([Quarter]) = YEAR([ThruDate])-1 AND DATEPART('quarter', [Quarter]) = DATEPART('quarter', [ThruDate]) THEN 
+    'PYTD'
+ELSE
+    'PPYTD'
+END",1.0,
+165,YTD Flag,string,,"IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'YTD'
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PYTD'
+ELSEIF YEAR([ThruDate])-2=DATEPART('year',[FilledMonth]) AND 
+    DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN 'PPYTD'
+END",1.0,
+514,YTD Flag,string,,"IF YEAR([ThruDate]) = YEAR([FilledMonth]) 
+    AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) 
+    THEN 'YTD'
+
+ELSEIF YEAR([ThruDate]) - 1 = YEAR([FilledMonth]) 
+    AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) 
+    THEN 'PYTD'
+
+ELSEIF YEAR([ThruDate]) - 2 = YEAR([FilledMonth]) 
+    AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) 
+    THEN 'PPYTD'
+END",1.0,
+106,Year,string,,STR(YEAR([FilledMonth])),1.0,
+459,Year,string,,STR(YEAR([FilledYear])),1.0,
+264,Year Label,string,,"IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Prior""
+END",1.0,
+465,Year Label,string,,"IF YEAR([ThruDate])=DATEPART('year',[FilledMonth]) AND DATEPART('month',[FilledMonth]) <= DATEPART('month',[ThruDate]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[FilledMonth]) THEN ""Prior Year""
+ELSE ""2 Years Ago""
+END",1.0,1
+311,Year Label,string,,"IF YEAR([ThruDate])=DATEPART('year',[Quarter]) THEN ""Current Year""
+ELSEIF YEAR([ThruDate])-1=DATEPART('year',[Quarter]) THEN ""Prior Year""
+END",1.0,
+119,Year View Filter,string,,"IF YEAR([FilledMonth]) >= ([Parameters].[Parameter 5]-1)
+    AND YEAR([FilledMonth]) <= ([Parameters].[Parameter 5])
+
+ THEN 'Show Year' ELSE 'Hide Year' END",1.0,
+472,Year View Filter,string,,"IF YEAR([FilledYear]) >= ([Parameters].[Parameter 5]-1)
+    AND YEAR([FilledYear]) <= ([Parameters].[Parameter 5])
+
+ THEN 'Show Year' ELSE 'Hide Year' END",1.0,
