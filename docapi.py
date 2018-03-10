@@ -79,7 +79,7 @@ def get_resolved_calculation(fieldObj, allFieldsObj, resolutionType=None):
     if not _field_has_calculation(fieldObj):
         return None
 
-    print 'checker: ', fieldObj.name, _field_has_calculation(fieldObj)
+    print('checker: ', fieldObj.name, _field_has_calculation(fieldObj))
 
     ## Resolve non-named calculated fields
     # look for the fields with 'Calculation_' ids
@@ -125,7 +125,8 @@ if path == "":
     path = os.path.realpath(os.getcwd())
 
 for fname in os.listdir(path):
-    if fname == 'Sample Superstore Workbook ALT.twb':
+    # if fname == 'Sample Superstore Workbook ALT.twb':
+    if fname == 'tableauworkbook.twb':
         if fname.endswith('twb') or fname.endswith('twbx') or fname.endswith('tds'):
             sourceWB = Workbook(fname)
             for sourceTDS in sourceWB.datasources:
@@ -134,7 +135,7 @@ for fname in os.listdir(path):
                     #     print "RAISING 1: TDS Name: {}, Caption: {}, Value: {}".format(sourceTDS.name, sourceTDS.caption, x)
 
                     for count, field in enumerate(sourceTDS.fields.values()):
-                        print "WORKBOOK: ", sourceWB.filename, " DATASOURCE: ", sourceTDS.name, " FIELD: ", field.name
+                        print("WORKBOOK: ", sourceWB.filename, " DATASOURCE: ", sourceTDS.name, " FIELD: ", field.name)
                         d.append({'Workbook': sourceWB.filename,
                                 'Field': field.name,
                                 'Type': field.datatype,
@@ -155,24 +156,24 @@ d = pd.DataFrame(d)
 # d1['freq'] = d1.groupby('Field')['Field'].transform('count') # Add Frequency
 # d1_1 = d1.query('freq > 1') # Partition Fields with duplicates
 # d1_2 = d1.query('freq == 1') # Partition Fields without duplicates
-#
+
 # d1_1['Field_Calc_Count'] = d1_1.groupby(['Field'])['Field Calculation'].transform('count')
-#
+
 # d1_1_1 = d1_1.query('Field_Calc_Count > 1') # Multipe fields, diff calcs
 # d1_1_1['Dup_Calc'] = 1
-#
+
 # d1_1_2 = d1_1.query('Field_Calc_Count <=1') # Non duplicate field calcs
-#
+
 # d1_1_2['Agg_Null'] = np.where(d1_1_2['Default Aggregation'].isnull(),1,0)
 # d1_1_2 = d1_1_2.query('Agg_Null==0') # Non Duplicates
-#
+
 # # Join final partitions together #
 # final = pd.concat([d1_2, d1_1_2, d1_1_1])
-#
+
 # # Check for Same Calc with different field names #
 # final['calc_freq'] = final.groupby('Field Calculation')['Field Calculation'].transform('count')
 # final['Dup_Field'] = np.where(final['calc_freq']>1,1,"")
-#
+
 # final.to_csv('Python Output File.csv'
 #         , columns=[#'Workbook',
 #         'Field', 'Type', 'Default Aggregation', 'Field Calculation',
